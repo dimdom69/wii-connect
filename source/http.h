@@ -2,6 +2,14 @@
 
 #define MAX_SOCKETS 99
 
+	struct emsg{
+		char *from;
+		char *to;
+		char *subject;
+		char *message;
+		
+	};	
+
 class http{
 
 public:
@@ -54,4 +62,54 @@ protected:
 private:
 	char *mesbuf;
 	char *status;
+};
+
+
+class email : public http{
+	
+
+public:
+	
+	email(char *ip,int port = 25);
+	~email();
+	void sendemail(struct emsg mess);
+	
+
+private:
+	char *response;
+	char *line;
+	char *host;
+	
+	
+	
+	
+	
+};
+
+class network : public http{
+public:
+	network();
+	~network();
+	void connect(char *a,u32 b = NULL, int c = 80, int d = 1);	
+	char *gethttpfile(char *a,int b = 1025, int c = 1);
+	const char *getstate();
+	void writetosocket( char *a,int b = 1);
+	char *readfromsocket(int a = 1025,int b = 1);
+	char *file;
+	char *write;
+	int bufsize;
+	int snum;
+	char *ipc;
+	u32 ip;
+	int port;
+	s32 netstate;
+	char *redfromsocket;
+	const char *gotnetstate;
+	char *gothttpfile;
+	http *net;
+	int all;
+protected:
+	
+private:
+
 };
