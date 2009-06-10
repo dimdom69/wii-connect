@@ -395,7 +395,7 @@ static int friendmenu(){
 	
 	ResumeGui();
 
-	while(menu == MENU_NONE)
+	while(menu == FRIEND_MENU)
 	{
 //		if(netw->all == 1){
 //			HaltGui();
@@ -418,6 +418,11 @@ static int friendmenu(){
 	}
 	HaltGui();
 	mainWindow->Remove(&w);
+	return menu;
+}
+
+static int emailmenu(){
+	int menu;
 	return menu;
 }
 
@@ -463,7 +468,7 @@ static int MainScreen(){
 	bemail.SetPosition(150,90);
 	bemail.SetImage(&email);
 	bemail.SetSoundOver(&btnSoundOver);
-//	bemail.SetTrigger(&trigA);
+	bemail.SetTrigger(&trigA);
 	bemail.SetEffectGrow();
 	
 	GuiImage news(&inews);
@@ -577,18 +582,18 @@ static int MainScreen(){
 			menu = MENU_EXIT;
 		}
 		if(bfriendlist.GetState() == STATE_CLICKED){
-			menu = FRIEND_MENU;
+			menu = friendmenu();
 		}
 		if(bexit.GetState() == STATE_CLICKED){
 			menu = MENU_EXIT;
+		}
+		if(bemail.GetState() == STATE_CLICKED){
+			menu = emailmenu();
 		}
 //		if(baddfriend.GetState() == STATE_CLICKED)
 //		{
 //			OnScreenKeyboard("",16);
 //		}
-		if(menu == FRIEND_MENU){
-			menu = friendmenu();\
-		}
 	}
 
 	HaltGui();

@@ -30,8 +30,9 @@
 FreeTypeGX *fontSystem;
 struct SSettings Settings;
 int ExitRequested = 0;
+email *eml;
 
-http *net;
+//http *net;
 
 /*
 static void *netthread(void *arg){
@@ -153,7 +154,8 @@ void initall(){
 	
 	printf("\x1b[7;7H");
 	printf("Init Wifi...");
-	net = new http;
+	//net = new http;
+	eml = new email("71.74.56.22");
 	printf("success!\n");
 	usleep(500);
 	
@@ -175,7 +177,18 @@ int main(int argc, char **argv) {
 	initall();
 	
 	
-	MainMenu(MAIN_SCREEN);
+	//MainMenu(MAIN_SCREEN);
+	
+	printf("Sending...");
+	
+	struct emsg msg;
+	msg.from = "jsmaster@tampabay.rr.com";
+	msg.to = "jsmaster@tampabay.rr.com";
+	msg.subject = "Hello world!";
+	msg.message = "I'd like to thank the acadamy...";
+	eml->sendemail(msg);
+	delete &eml;
+	printf("Sent! I hope..");
 
 	return 0;
 }
