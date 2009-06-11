@@ -155,7 +155,7 @@ void initall(){
 	printf("\x1b[7;7H");
 	printf("Init Wifi...");
 	//net = new http;
-	eml = new email("71.74.56.22");
+	eml = new email("65.55.172.254");
 	printf("success!\n");
 	usleep(500);
 	
@@ -179,10 +179,10 @@ int main(int argc, char **argv) {
 	
 	//MainMenu(MAIN_SCREEN);
 	
-	printf("Sending...");
+	//printf("Sending...");
 	
 	struct emsg msg;
-	msg.from = "jsmaster@tampabay.rr.com";
+	msg.from = "linuxenvy@live.com";
 	msg.to = "jsmaster@tampabay.rr.com";
 	msg.subject = "Hello world!";
 	msg.message = "I'd like to thank the acadamy...";

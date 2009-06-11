@@ -27,7 +27,7 @@ http::~http(){
 	for(int x = 0;x<MAX_SOCKETS;x++){
 		net_close(socket[x]);
 	}
-	free(buffer);
+	delete [] buff;
 }
 
 void http::connect(const char *ipc,u32 ip, int port, int snum){
@@ -69,24 +69,45 @@ void http::writetosocket(const char *write,const int snum){
 }
 
 char *http::readfromsocket(int bufsize,const int snum){
-	delete buffer;
 	netstate = 4;
-	buffer = new char [bufsize];
-	if(buffer == NULL){
+	offset = 0;
+	if(buff != NULL){
+		delete [] buff;
+	}
+	buff = new char [bufsize];
+	if(buff == NULL){
 		netstate = -10;
 		return NULL;
 	}
-	read = 0;
-	while (read < (bufsize - 1)) {
-		if ((read = net_read(socket[snum],buffer, bufsize - 1 - offset)) < 0) {
+	red = 0;
+	while (red < (bufsize - 1)) {
+		if ((red = net_read(socket[snum],buff + offset, (bufsize - 1) - offset)) < 0) {
 			netstate = -40;
 			break;
-		} else if (read == 0) {
+		} else if (red == 0) {
 			break; // EOF from client
 		}
-		buffer[read+1] = '\0';
+		else if (buff[offset+red] == '\0'){
+			break;
+		}
+		buff[offset+red] = '\0';
+		offset+=red;
 	}
-	return buffer;
+	return buff;
+}
+
+char *http::read(int bufsize, int snum){
+	netstate = 4;
+	if(buff != NULL){
+		delete [] buff;
+	}
+	buff = new char [bufsize];
+	if(buff == NULL){
+		netstate = -10;
+		return NULL;
+	}
+	net_recv(socket[snum],buff, bufsize - 1,0);
+	return buff;
 }
 
 char *http::gethttpfile(const char *file,int bufsize,int snum){
@@ -98,7 +119,7 @@ char *http::gethttpfile(const char *file,int bufsize,int snum){
 	}
 	asprintf(&httpget,"GET /%s HTTP/1.0\r\n\r\n",file);
 	writetosocket(httpget,snum);
-	delete httpget;
+	delete [] httpget;
 	netstate = 0;
 	return readfromsocket(bufsize,snum);
 }
