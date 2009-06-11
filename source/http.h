@@ -20,6 +20,7 @@ char *gethttpfile(const char *file,int bufsize = 1025, int snum = 1);
 const char *getstate();
 void writetosocket(const char *write,const int snum = 1);
 char *readfromsocket(int bufsize = 1025,const int snum = 1);
+char *read(int bufsize = 1025,int snum = 1);
 s32 netstate;
 
 protected:
@@ -42,8 +43,8 @@ struct httpresponse{
 };
 char *httpget;
 int offset;
-int read;
-char *buffer;
+int red;
+char *buff;
 s32 socket[MAX_SOCKETS];
 }; 
 
