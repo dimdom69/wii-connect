@@ -150,14 +150,16 @@ void initall(){
 	
 	fatInitDefault();
 	
-	DEBUG_Init(GDBSTUB_DEVICE_USB, 1);
-	
 	printf("\x1b[7;7H");
-	printf("Init Wifi...");
+	
+	printf("Starting debug...");
+	
+	DEBUG_Init(GDBSTUB_DEVICE_USB, 1);
+	printf("started!\n");
+	printf("\x1b[7CInit Wifi...");
 	//net = new http;
-	eml = new email("65.55.172.254");
+	eml = new email("71.74.56.22");
 	printf("success!\n");
-	usleep(500);
 	
 //	LWP_CreateThread (&net_t,netthread, NULL, NULL, 0, 40);
 
@@ -182,13 +184,18 @@ int main(int argc, char **argv) {
 	//printf("Sending...");
 	
 	struct emsg msg;
-	msg.from = "linuxenvy@live.com";
+	msg.from = "jsmaster@tampabay.rr.com";
 	msg.to = "jsmaster@tampabay.rr.com";
 	msg.subject = "Hello world!";
 	msg.message = "I'd like to thank the acadamy...";
 	eml->sendemail(msg);
 	delete &eml;
 	printf("Sent! I hope..");
-
+	
+	
+	//eml->connect("140.211.11.130",NULL,80);
+	
+	//printf("%s",eml->gethttpfile("index.html",50000));
+	
 	return 0;
 }

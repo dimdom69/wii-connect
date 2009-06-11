@@ -70,45 +70,45 @@ void http::writetosocket(const char *write,const int snum){
 
 char *http::readfromsocket(int bufsize,const int snum){
 	netstate = 4;
-	offset = 0;
 	if(buff != NULL){
 		delete [] buff;
+		buff = NULL;
 	}
-	buff = new char [bufsize];
+	buff = new char [bufsize+1];
 	if(buff == NULL){
 		netstate = -10;
 		return NULL;
 	}
-	red = 0;
-	while (red < (bufsize - 1)) {
-		if ((red = net_read(socket[snum],buff + offset, (bufsize - 1) - offset)) < 0) {
+	offset = 0;
+	while (red = net_read(socket[snum],buff + offset, bufsize - offset)){
+		if(red<0){
 			netstate = -40;
-			break;
-		} else if (red == 0) {
-			break; // EOF from client
-		}
-		else if (buff[offset+red] == '\0'){
+			delete [] buff;
+			buff = NULL;
 			break;
 		}
 		buff[offset+red] = '\0';
 		offset+=red;
+		if(red == 0) break;
 	}
 	return buff;
 }
-
+/*
 char *http::read(int bufsize, int snum){
 	netstate = 4;
 	if(buff != NULL){
 		delete [] buff;
 	}
-	buff = new char [bufsize];
+	buff = new char [bufsize+1];
 	if(buff == NULL){
 		netstate = -10;
 		return NULL;
 	}
-	net_recv(socket[snum],buff, bufsize - 1,0);
+	red = net_read(socket[snum],buff, bufsize);
 	return buff;
 }
+*/
+
 
 char *http::gethttpfile(const char *file,int bufsize,int snum){
 	netstate = 5;
