@@ -24,12 +24,10 @@
 #include "demo.h"
 #include "input.h"
 #include "filelist.h"
-//#include "net.h"
 
 using namespace std;
 
 
-//extern network *netw;
 static GuiImageData * pointer[4];
 static GuiImageData * ibg = NULL;
 static GuiImageData * isidebar = NULL;
@@ -318,10 +316,10 @@ static void OnScreenKeyboard(char * var, u16 maxlen)
  * *************************************************************************/
 static int friendmenu(){
 	
-	int menu = FRIEND_MENU;
+	int menu = MENU_FRIEND;
 	
 	HaltGui();
-	GuiImage rect(screenwidth,screenheight,(GXColor){0,0,0,0});
+	//GuiImage rect(screenwidth,screenheight,(GXColor){0,0,0,0});
 	GuiTrigger trigA;
 	trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A, PAD_BUTTON_A);
 /*	GuiWindow effect;
@@ -340,43 +338,45 @@ static int friendmenu(){
 	_break();*/
 	FILE *fd;
 	fd = fopen("/wiiconnect/friendlist.fls","a");
-	int c[99];
-	int x = 0;
-	int y = 0;
+	int datanum = 0;
+	int numfriends = 0;
+	char *c;
+	c = new char [99];
 	frienddata fdata[99];
 	
-	ip:
-	while((c[x] = fgetc(fd))){
+	for(int x = 0;(c[x] = (char)fgetc(fd));x++){
+		c[x+1] = '\0';
 		if(c[x] == '\n'){
-			fdata[y].ip = (char*)c;
-			goto name; 
+			if(c[0] == 'i'){
+				fdata[datanum].ip = new char [x+1];
+				strcpy(fdata[datanum].ip,c);
+				x = 0;
+				datanum++;
+			}
+			if(c[0] == 'n'){
+				fdata[datanum].name = new char [x+1];
+				strcpy(fdata[datanum].name,c);
+				x = 0;
+				datanum++;
+				numfriends++;
+			}
 		}
-		x++;
 	}
-	name:
-	while((c[x] = fgetc(fd))){
-		if(c[x] == EOF) goto conti;
-		if(c[x] == '\n'){
-			fdata[y].name = (char*)c;
-			y++;
-			goto ip; 
-		}
-		x++;
-	}
-	conti:
+	delete [] c;
+	
 	GuiWindow w;
 	GuiImageData iaddfriend(addfriend_png);
 	GuiImageData ipoke(poke_png);
 	GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
 	
 	GuiText *frnd;
-	frnd = new GuiText[y];
+	frnd = new GuiText [numfriends];
 	
-	for(int num = 0;num<=y;num++){
+	for(int num = 0;num<=numfriends;num++){
 		frnd[num].SetText(fdata[num].name);
 	}
 	
-	for(int num = 0;num<=y;num++){
+	for(int num = 0;num<=numfriends;num++){
 		frnd[num].SetPosition((num*30)+100,200);
 		w.Append(&frnd[num]);
 	}
@@ -395,13 +395,8 @@ static int friendmenu(){
 	
 	ResumeGui();
 
-	while(menu == FRIEND_MENU)
+	while(menu == MENU_FRIEND)
 	{
-//		if(netw->all == 1){
-//			HaltGui();
-//			netstatus.SetText(netw->getstate());
-//			ResumeGui();
-//		}
 		VIDEO_WaitVSync ();
 		if(bmainWindow->GetState() == STATE_CLICKED)
 		{
@@ -422,7 +417,9 @@ static int friendmenu(){
 }
 
 static int emailmenu(){
-	int menu;
+	int menu = MENU_EMAIL;
+	HaltGui();
+	ResumeGui();
 	return menu;
 }
 
@@ -571,11 +568,6 @@ static int MainScreen(){
 
 	while(menu == MENU_NONE)
 	{
-//		if(netw->all == 1){
-//			HaltGui();
-//			netstatus.SetText(netw->getstate());
-//			ResumeGui();
-//		}
 		VIDEO_WaitVSync ();
 		if(bmainWindow->GetState() == STATE_CLICKED)
 		{
@@ -657,7 +649,7 @@ void MainMenu(int menu)
 			case MAIN_SCREEN:
 				currentMenu = MainScreen();
 				break;
-			case FRIEND_MENU:
+			case MENU_FRIEND:
 				currentMenu = friendmenu();
 				break;
 			default: // unrecognized menu
