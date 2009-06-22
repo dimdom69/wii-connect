@@ -17,15 +17,16 @@ void MainMenu (int menuitem);
 enum
 {
 	MENU_EXIT = -1,
-	FRIEND_MENU,
+	MENU_FRIEND,
+	MENU_EMAIL,
 	MENU_NONE,
 	MAIN_SCREEN
 };
 
-struct frienddata{
+typedef struct frienddata_s{
 	char *ip;
 	char *name;
-};
+}frienddata;
 
 
 #endif
