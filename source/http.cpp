@@ -57,7 +57,7 @@ http::~http(){
 }
 
 
-char *http::gethttpfile(const char *file,char *host,int bufsize,int snum){
+char *http::gethttpfile(const char *file,char *host,int bufsize){
 	netstate = 5;
 	if(host == NULL){	//Sometimes works, not always (will use http 1.0 instead of 1.1. Does not work for google, eg)
 		httpget = new char [strlen("GET / HTTP/1.0\r\n\r\n")+strlen(file)+1];  
@@ -66,10 +66,10 @@ char *http::gethttpfile(const char *file,char *host,int bufsize,int snum){
 			return NULL;
 		}
 		asprintf(&httpget,"GET /%s HTTP/1.0\r\n\r\n",file); //Simplest way to GET a file
-		writetosocket(httpget,snum);       //Send the request
+		writetosocket(httpget);       //Send the request
 		delete [] httpget;		//Save memory
 		netstate = 0;
-		return readfromsocket(bufsize,snum);	//Recieve the response
+		return readfromsocket(bufsize);	//Recieve the response
 	}
 	else{				//Prefered Method
 		httpget = new char [strlen("GET / HTTP/1.1\r\nHost: \r\n\r\n")+strlen(file)+strlen(host)+1];
@@ -78,10 +78,10 @@ char *http::gethttpfile(const char *file,char *host,int bufsize,int snum){
 			return NULL;
 		}
 		asprintf(&httpget,"GET /%s HTTP/1.1\r\nHost: %s\r\n\r\n",file,host); //Better way to GET a file, should always work if used correctly
-		writetosocket(httpget,snum); //Send it
+		writetosocket(httpget); //Send it
 		delete [] httpget;  //Save memory
 		netstate = 0;
-		return readfromsocket(bufsize,snum);  //Recieve response (hopefully the file you wanted) and return it
+		return readfromsocket(bufsize);  //Recieve response (hopefully the file you wanted) and return it
 	}
 }
 
