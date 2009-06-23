@@ -12,9 +12,8 @@
 #include "internet.h"
 
 
-email::email(char *ip,int port){
-	connect(ip,NULL,port,3);
-	response = new char [151];
+email::email(){
+	response = new char [999];
 	line = new char [100];
 }
 
@@ -22,55 +21,63 @@ email::~email(){
 	
 }
 
+void email::setsettings(mailsettings s){
+	memcpy(&settings,&s,sizeof(mailsettings));
+}
+void email::getsettings(mailsettings *s){
+	memcpy(s,&settings,sizeof(mailsettings));
+}
+
 void email::sendemail(struct emsg mess){
+	connect(NULL,settings.port,settings.server);
 	host = strchr(mess.from,'@')+sizeof(char);
-	response = readfromsocket(150,3);
+	response = readfromsocket(999);
 	printf("\x1b[7CServer: %s\n",response);
 	asprintf(&line,"HELO %s", localip);
-	writetosocket(line,3);
-	writetosocket("\r\n",3);
+	writetosocket(line);
+	writetosocket("\r\n");
 	printf("\x1b[7CClient: %s\r\n",line);
-	response = readfromsocket(150,3);
+	response = readfromsocket(999);
 	printf("\x1b[7CServer: %s\n",response);
 	sprintf(line,"VRFY %s",mess.from);
-	writetosocket(line,3);
-	writetosocket("\r\n",3);
+	writetosocket(line);
+	writetosocket("\r\n");
 	printf("\x1b[7CClient: %s\r\n",line);
-	response = readfromsocket(150,3);
+	response = readfromsocket(999);
 	printf("\x1b[7CServer: %s\n",response);
 	sprintf(line,"MAIL FROM:<%s>",mess.from);
-	writetosocket(line,3);
-	writetosocket("\r\n",3);
+	writetosocket(line);
+	writetosocket("\r\n");
 	printf("\x1b[7CClient: %s\r\n",line);
-	response = readfromsocket(150,3);
+	response = readfromsocket(999);
 	printf("\x1b[7CServer: %s\n",response);
 	sprintf(line,"RCPT TO:<%s>",mess.to);
-	writetosocket(line,3);
-	writetosocket("\r\n",3);
+	writetosocket(line);
+	writetosocket("\r\n");
 	printf("\x1b[7CClient: %s\r\n",line);
-	response = readfromsocket(150,3);
+	response = readfromsocket(999);
 	printf("\x1b[7CServer: %s\n",response);
-	writetosocket("DATA",3);
-	writetosocket("\r\n",3);
+	writetosocket("DATA");
+	writetosocket("\r\n");
 	printf("\x1b[7CClient: %s","DATA\r\n");
-	response = readfromsocket(150,3);
+	response = readfromsocket(999);
 	printf("\x1b[7CServer: %s\n",response);
 	sprintf(line,"Subject: %s",mess.subject);
-	writetosocket(line,3);
-	writetosocket("\r\n",3);
+	writetosocket(line);
+	writetosocket("\r\n");
 	printf("\x1b[7CClient: %s\r\n",line);
 	sprintf(line,"%s",mess.message);
-	writetosocket(line,3);
-	writetosocket("\r\n",3);
+	writetosocket(line);
+	writetosocket("\r\n");
 	printf("\x1b[7CClient: %s\r\n",line);
-	writetosocket(".",3);
-	writetosocket("\r\n",3);
+	writetosocket(".");
+	writetosocket("\r\n");
 	printf("\x1b[7CClient: %s",".\r\n");
-	response = readfromsocket(150,3);
+	response = readfromsocket(999);
 	printf("\x1b[7CServer: %s\n",response);
-	writetosocket("QUIT",3);
-	writetosocket("\r\n",3);
+	writetosocket("QUIT");
+	writetosocket("\r\n");
 	printf("\x1b[7CClient: %s","QUIT\r\n");
-	response = readfromsocket(150,3);
+	response = readfromsocket(999);
 	printf("\x1b[7CServer: %s\n",response);
 }

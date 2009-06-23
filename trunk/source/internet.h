@@ -38,12 +38,12 @@ class internet{
 	public:
 		internet();
 		~internet();
-		void connect(const char *ipc,u32 ip = NULL, int port = 80, int snum = 1);
+		void connect(const char *server, int port,char *ipc = NULL);
 		int getnetstate();
 		const char *getstate();
-		void writetosocket(const char *write,const int snum = 1);
-		char *readfromsocket(int bufsize = 1025,const int snum = 1);
-		char *read(int bufsize = 1025,int snum = 1);
+		void writetosocket(const char *write);
+		char *readfromsocket(int bufsize = 1025);
+		char *read(int bufsize = 1025);
 	protected:
 		char localip[16];
 		char gateway[16];
@@ -52,9 +52,10 @@ class internet{
 	
 	private:
 		int offset;
+		u32 ipaddr;
 		int red;
 		char *buff;
-		s32 socket[MAX_SOCKETS];
+		s32 socket;
 	
 };
 
@@ -63,7 +64,7 @@ class http : public internet{
 public:
 http();
 ~http();
-char *gethttpfile(const char *file,char *host = NULL,int bufsize = 1025, int snum = 1);
+char *gethttpfile(const char *file,char *host = NULL,int bufsize = 1025);
 protected:
 
 private:
@@ -98,7 +99,11 @@ private:
 	char *mesbuf;
 	char *status;
 };
-
+typedef struct mailsettings_s{
+	char *server;
+	int port;
+	
+}mailsettings;
 typedef struct messlist_s{
 	char *subject;
 	char *from;
@@ -120,22 +125,27 @@ class email : public internet{
 
 public:
 	
-	email(char *ip,int port = 25);
+	email();
 	~email();
 	void sendemail(struct emsg mess);
 	mlist *getallmail(); //must have set settings first; gets new mail + saved mail
+	void setsettings(mailsettings s);
+	void getsettings(mailsettings *s);
 	
 
 private:
 	char *response;
 	char *line;
 	char *host;
+	mailsettings settings;
 	
 	
 	
 	
 	
 };
+
+
 /*
 class network : public internet{
 public:

@@ -52,7 +52,7 @@ void initall(){
 	DEBUG_Init(GDBSTUB_DEVICE_USB, 1);
 	printf("started!\n");
 	printf("\x1b[7CInit Wifi...");
-	eml = new email("71.74.56.22");
+	eml = new email();
 	printf("success!\n");
 
 }

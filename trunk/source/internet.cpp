@@ -27,53 +27,45 @@ internet::internet(){
 }
 
 internet::~internet(){
-	for(int x = 0;x<MAX_SOCKETS;x++){
-		if(socket[x]){
-			net_close(socket[x]);
-		}
-	}
+	net_close(socket);
 	delete [] buff;
 }
 
-void internet::connect(const char *ipc,u32 ip, int port, int snum){
+void internet::connect(const char *server, int port,char *ipc){
 	netstate = 2;
-	if(snum > MAX_SOCKETS){ //Limit number of sockets open
-		netstate = -20;
-		return;
-	}
-	if(ipc != NULL){
-		ip = inet_addr(ipc);		//Converts ip into standard u32
+	if(server == NULL){
+		ipaddr = inet_addr(server);		//Converts ip into standard u32
 	}
 
 	struct sockaddr_in connect_addr;
-	socket[snum] = net_socket(AF_INET, SOCK_STREAM, IPPROTO_IP);  //Create the socket
-    if (socket[snum] < 0){			//Check for errors
+	socket = net_socket(AF_INET, SOCK_STREAM, IPPROTO_IP);  //Create the socket
+    if (socket < 0){			//Check for errors
     	netstate = -21;
     	return;
 	}
 	memset(&connect_addr, 0, sizeof(connect_addr));
 	connect_addr.sin_family = AF_INET;
 	connect_addr.sin_port = port;
-	connect_addr.sin_addr.s_addr=ip;
+	connect_addr.sin_addr.s_addr=ipaddr;
 	
-	if (net_connect(socket[snum], (struct sockaddr*)&connect_addr, sizeof(connect_addr)) == -1) {    //Connect to the ip..
-		net_close(socket[snum]);         //..And check for an error
+	if (net_connect(socket, (struct sockaddr*)&connect_addr, sizeof(connect_addr)) == -1) {    //Connect to the ip..
+		net_close(socket);         //..And check for an error
 		netstate = -22;
 		return;
 	}
 	netstate = 0; //All is well
 }
 
-void internet::writetosocket(const char *write,const int snum){
+void internet::writetosocket(const char *write){
 	netstate = 3;
-	if(net_write(socket[snum],write,strlen(write))){   //Simple function, checks for an error (returns 0 on success)
+	if(net_write(socket,write,strlen(write))){   //Simple function, checks for an error (returns 0 on success)
 		netstate = -30;
 		return;
 	}
 	netstate = 0;
 }
 
-char *internet::readfromsocket(int bufsize,const int snum){
+char *internet::readfromsocket(int bufsize){
 	netstate = 4;
 	if(buff != NULL){  //If initialized,
 		delete [] buff;//delete the buffer
@@ -84,11 +76,12 @@ char *internet::readfromsocket(int bufsize,const int snum){
 		return NULL;
 	}
 	offset = 0;    //Variable for telling net_read() where to read() to
-	while ((red = net_read(socket[snum],buff + offset, bufsize - offset) > 0)){
+	while ((red = net_read(socket,buff + offset, bufsize - offset) > 0)){
 		buff[offset+red+1] = '\0';  //So that the char* ends with a \0
 		offset+=red;               //Adds the amount read to the offset so that the correct memory address can be found
 		if(red<0){					//Error Checking
 			netstate = -40;
+			delete [] buff;
 			buff = NULL;
 			break;
 		}
@@ -98,7 +91,7 @@ char *internet::readfromsocket(int bufsize,const int snum){
 
 
 /*
-char *internet::read(int bufsize, int snum){
+char *internet::read(int bufsize){
 	netstate = 4;
 	if(buff != NULL){
 		delete [] buff;
@@ -108,7 +101,7 @@ char *internet::read(int bufsize, int snum){
 		netstate = -10;
 		return NULL;
 	}
-	red = net_read(socket[snum],buff, bufsize);
+	red = net_read(socket,buff, bufsize);
 	return buff;
 }
 */
