@@ -22,28 +22,30 @@
 
 
 #include <stdlib.h>
+#include <network.h>
 
-#define MAX_SOCKETS 99
+enum net_protocol{
+	UDP,
+	TCP
+};
 
-	struct emsg{
-		char *from;
-		char *to;
-		char *subject;
-		char *message;
-		
-	};	
+using namespace std;
+
+
 	
 	
 class internet{
 	public:
 		internet();
 		~internet();
-		void connect(const char *server, int port,char *ipc = NULL);
+		void connect(char *server, int port,net_protocol protocol);
 		int getnetstate();
 		const char *getstate();
 		void writetosocket(const char *write);
 		char *readfromsocket(int bufsize = 1025);
 		char *read(int bufsize = 1025);
+		char *getipbyname(char *domain);
+		char *address_to_ip(char *address_in);
 	protected:
 		char localip[16];
 		char gateway[16];
@@ -56,6 +58,8 @@ class internet{
 		int red;
 		char *buff;
 		s32 socket;
+		hostent *hostip;
+		char *host;
 	
 };
 
@@ -100,7 +104,7 @@ private:
 	char *status;
 };
 typedef struct mailsettings_s{
-	char *server;
+	char server[50];
 	int port;
 	
 }mailsettings;
@@ -120,6 +124,17 @@ typedef struct mlist_s{
 	int amount;
 	messlist *ml;
 }mlist;
+
+struct emsg{
+	char from[50];
+	char to[50];
+	char subject[50];
+	char message[200];
+	
+};	
+	
+	
+
 class email : public internet{
 	
 
@@ -129,15 +144,17 @@ public:
 	~email();
 	void sendemail(struct emsg mess);
 	mlist *getallmail(); //must have set settings first; gets new mail + saved mail
-	void setsettings(mailsettings s);
+	void setsettings(mailsettings *s);
 	void getsettings(mailsettings *s);
+	void clearsettings();
 	
 
 private:
 	char *response;
 	char *line;
 	char *host;
-	mailsettings settings;
+	mailsettings *settings;
+	int port;
 	
 	
 	

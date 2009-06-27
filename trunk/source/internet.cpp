@@ -18,6 +18,7 @@
 #define MAX_SOCKETS 99
 
 
+
 internet::internet(){
 	netstate = 1;				
 	while (net_init() == -EAGAIN);		//Keep trying to connect
@@ -31,14 +32,15 @@ internet::~internet(){
 	delete [] buff;
 }
 
-void internet::connect(const char *server, int port,char *ipc){
+void internet::connect(char *server, int port,net_protocol protocol){
 	netstate = 2;
-	if(server == NULL){
-		ipaddr = inet_addr(server);		//Converts ip into standard u32
-	}
-
+	/*if(!(server=address_to_ip(server))){
+		netstate = -11;
+		return;
+	}*/
+	ipaddr = inet_addr(server);		//Converts ip into standard u32
 	struct sockaddr_in connect_addr;
-	socket = net_socket(AF_INET, SOCK_STREAM, IPPROTO_IP);  //Create the socket
+	socket = net_socket(AF_INET, protocol == TCP ? SOCK_STREAM : SOCK_DGRAM,IPPROTO_IP);  //Create the socket
     if (socket < 0){			//Check for errors
     	netstate = -21;
     	return;
@@ -76,21 +78,21 @@ char *internet::readfromsocket(int bufsize){
 		return NULL;
 	}
 	offset = 0;    //Variable for telling net_read() where to read() to
-	while ((red = net_read(socket,buff + offset, bufsize - offset) > 0)){
-		buff[offset+red+1] = '\0';  //So that the char* ends with a \0
+	while ((red = net_read(socket,buff+offset, bufsize - 1) > 0)){
 		offset+=red;               //Adds the amount read to the offset so that the correct memory address can be found
-		if(red<0){					//Error Checking
-			netstate = -40;
-			delete [] buff;
-			buff = NULL;
-			break;
-		}
+		buff[offset] = '\0';  //So that the char* ends with a \0
 	}
+	/*if(red<0){					//Error Checking
+		netstate = -40;
+		delete [] buff;
+		buff = NULL;
+		break;
+	}*/
 	return buff;		//Returns what it read
 }
 
 
-/*
+
 char *internet::read(int bufsize){
 	netstate = 4;
 	if(buff != NULL){
@@ -102,9 +104,34 @@ char *internet::read(int bufsize){
 		return NULL;
 	}
 	red = net_read(socket,buff, bufsize);
+	buff[red] = '\0';
 	return buff;
 }
-*/
+
+char* internet::getipbyname(char *domain){
+	struct hostent *host = NULL;
+	host = net_gethostbyname(domain);
+	if(host == NULL) {
+		return NULL;
+	}
+	struct sockaddr_in tmp;
+	memcpy(&tmp.sin_addr,host->h_addr_list[0],host->h_length);
+	return inet_ntoa(tmp.sin_addr);
+};
+
+
+    // are we dealing with an ip or address
+char* internet::address_to_ip(char *address_in)
+    {
+        for (unsigned int i=0;i<strlen(address_in);i++) {
+            char digit = address_in[i];
+            if ((digit < 48 || digit > 57) && digit != 46) {
+                return getipbyname(address_in);
+            }
+        }
+
+        return address_in; //already ip
+    }
 
 
 const char *internet::getstate(){
@@ -117,6 +144,8 @@ const char *internet::getstate(){
 		return "Failed to init network.";
 		case -10:
 		return "Out of memory.";
+		case -11:
+		return "Not a valid host address";
 		case 2:
 		return "Connecting...";
 		case -20:

@@ -27,6 +27,7 @@
 FreeTypeGX *fontSystem;
 int ExitRequested = 0;
 email *eml;
+http *inet;
 
 
 void initall(){
@@ -40,8 +41,7 @@ void initall(){
 	WPAD_SetVRes(WPAD_CHAN_ALL, screenwidth, screenheight);
 
 	
-	//InitGUIThreads();
-	//DefaultSettings();
+	InitGUIThreads();
 	
 	fatInitDefault();
 	
@@ -53,6 +53,7 @@ void initall(){
 	printf("started!\n");
 	printf("\x1b[7CInit Wifi...");
 	eml = new email();
+//	inet = new http();
 	printf("success!\n");
 
 }
@@ -69,21 +70,46 @@ int main(int argc, char **argv) {
 	
 	
 	initall();
+	//printf("Press A to send the email\nPress B to get the index of example.com.\n");
 	
 	
 	//MainMenu(MAIN_SCREEN);
 	
-	//printf("Sending...");
+	//struct emsg *msg;
 	
-	struct emsg msg;
-	msg.from = "jsmaster@tampabay.rr.com";
-	msg.to = "jsmaster@tampabay.rr.com";
-	msg.subject = "Hello world!";
-	msg.message = "I'd like to thank the acadamy...";
-	eml->sendemail(msg);
-	//delete &eml;
-	printf("Sent! I hope..");
+	MainMenu(MENU_EMAIL);
 	
+	/*while(1){
+		VIDEO_WaitVSync();
+		WPAD_ScanPads();
+		u32 pressed = WPAD_ButtonsDown(0);
+		if ( pressed & WPAD_BUTTON_HOME ) exit(0);
+		if(pressed & WPAD_BUTTON_A){
+			struct emsg msg;
+			strcpy(msg.from,"jsmaster@tampabay.rr.com");
+			strcpy(msg.to,"jsmaster@tampabay.rr.com");
+			strcpy(msg.subject,"Hello world!");
+			strcpy(msg.message,"I'd like to thank the acadamy...");
+			mailsettings settings;
+			strcpy(settings.server,"71.74.56.22");
+			eml->clearsettings();
+			eml->setsettings(&settings);
+			eml->sendemail(*msg);*/
+			//delete eml;
+			//printf("Sent! I hope..\n");
+		/*}
+		if(pressed & WPAD_BUTTON_B){
+			inet->connect("208.77.188.166",80,TCP);
+			printf("%s",inet->gethttpfile("index.html","example.com",5000));
+		}
+	}*/
+	
+	while(1){
+		WPAD_ScanPads();
+		u32 pressed = WPAD_ButtonsDown(0);
+		if ( pressed & WPAD_BUTTON_HOME ) exit(0);
+		
+	}
 	
 	exit(0);
 }
