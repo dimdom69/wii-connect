@@ -6,6 +6,7 @@
  * Menu flow routines - handles all menu logic
  ***************************************************************************/
 
+
 #ifndef _MENU_H_
 #define _MENU_H_
 
@@ -13,6 +14,7 @@
 
 void InitGUIThreads();
 void MainMenu (int menuitem);
+void getuserdata(struct emsg *ms);
 
 enum
 {

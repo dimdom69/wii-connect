@@ -24,6 +24,7 @@
 #include "demo.h"
 #include "input.h"
 #include "filelist.h"
+#include "internet.h"
 
 using namespace std;
 
@@ -72,6 +73,19 @@ HaltGui()
 	while(!LWP_ThreadIsSuspended(guithread))
 		usleep(50);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /****************************************************************************
  * WindowPrompt
@@ -311,6 +325,8 @@ static void OnScreenKeyboard(char * var, u16 maxlen)
 	mainWindow->SetState(STATE_DEFAULT);
 	ResumeGui();
 }
+
+
 /****************************************************************************
  * FriendMenu
  * *************************************************************************/
@@ -418,8 +434,21 @@ static int friendmenu(){
 
 static int emailmenu(){
 	int menu = MENU_EMAIL;
-	HaltGui();
-	ResumeGui();
+	struct emsg *ms;
+	ms = new emsg;
+	OnScreenKeyboard(ms->from,50);
+	OnScreenKeyboard(ms->to,50);
+	OnScreenKeyboard(ms->subject,50);
+	OnScreenKeyboard(ms->message,200);
+	mailsettings settings;
+	strcpy(settings.server,"71.74.56.22");
+	extern email *eml;
+	eml->clearsettings();
+	eml->setsettings(&settings);
+	eml->sendemail(*ms);
+	while(menu == MENU_NONE){
+		VIDEO_WaitVSync();
+	}
 	return menu;
 }
 
@@ -651,6 +680,9 @@ void MainMenu(int menu)
 				break;
 			case MENU_FRIEND:
 				currentMenu = friendmenu();
+				break;
+			case MENU_EMAIL:
+				currentMenu = emailmenu();
 				break;
 			default: // unrecognized menu
 				currentMenu = MainScreen();
