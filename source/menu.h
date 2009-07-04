@@ -31,4 +31,11 @@ typedef struct frienddata_s{
 }frienddata;
 
 
+enum _netaction{
+	SEND_EMAIL,
+	RECV_EMAIL,
+	NONE
+};
+
+
 #endif

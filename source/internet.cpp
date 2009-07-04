@@ -34,10 +34,10 @@ internet::~internet(){
 
 void internet::connect(char *server, int port,net_protocol protocol){
 	netstate = 2;
-	/*if(!(server=address_to_ip(server))){
+	if(!(server=address_to_ip(server))){
 		netstate = -11;
 		return;
-	}*/
+	}
 	ipaddr = inet_addr(server);		//Converts ip into standard u32
 	struct sockaddr_in connect_addr;
 	socket = net_socket(AF_INET, protocol == TCP ? SOCK_STREAM : SOCK_DGRAM,IPPROTO_IP);  //Create the socket
@@ -79,6 +79,10 @@ char *internet::readfromsocket(int bufsize){
 	}
 	offset = 0;    //Variable for telling net_read() where to read() to
 	while ((red = net_read(socket,buff+offset, bufsize - 1) > 0)){
+		if(!strncmp((char*)(buff+offset),".\r\n",3)){
+			buff[offset+red] = '\0';
+			break;
+		}
 		offset+=red;               //Adds the amount read to the offset so that the correct memory address can be found
 		buff[offset] = '\0';  //So that the char* ends with a \0
 	}

@@ -24,6 +24,13 @@
 #include <stdlib.h>
 #include <network.h>
 
+#define POP_TO "To:"
+#define POP_FROM "From:"
+#define POP_CC "Cc:"
+#define POP_DATE "Date:"
+#define POP_SUBJECT "Subject:"
+#define POP_BODY "\r\n\r\n"
+
 enum net_protocol{
 	UDP,
 	TCP
@@ -60,7 +67,6 @@ class internet{
 		s32 socket;
 		hostent *hostip;
 		char *host;
-	
 };
 
 class http : public internet{
@@ -68,7 +74,7 @@ class http : public internet{
 public:
 http();
 ~http();
-char *gethttpfile(const char *file,char *host = NULL,int bufsize = 1025);
+char *gethttpfile(const char *file,char *host,int bufsize = 1025);
 protected:
 
 private:
@@ -106,7 +112,8 @@ private:
 typedef struct mailsettings_s{
 	char server[50];
 	int port;
-	
+	char user[50];
+	char password[50];
 }mailsettings;
 typedef struct messlist_s{
 	char *subject;
@@ -114,7 +121,7 @@ typedef struct messlist_s{
 	char *to;
 	char *cc;
 	char *date;
-	char *data;
+	char *body;
 	int newmail;
 	int important;
 	int starred;
@@ -132,7 +139,12 @@ struct emsg{
 	char message[200];
 	
 };	
-	
+
+enum settype{
+	SMTP,
+	POP,
+	IMAP
+};
 	
 
 class email : public internet{
@@ -142,21 +154,33 @@ public:
 	
 	email();
 	~email();
-	void sendemail(struct emsg mess);
+	void sendemail(struct emsg *mess);
 	mlist *getallmail(); //must have set settings first; gets new mail + saved mail
-	void setsettings(mailsettings *s);
-	void getsettings(mailsettings *s);
-	void clearsettings();
+	void setsettings(settype st,mailsettings *s);
+	void getsettings(settype st,mailsettings *s);
+	void clearsettings(settype st);
+	mlist *getnewmail();
+	int renderpopresponse(const char *resp);
+	void parsemessage(messlist *ml,char *mess);
 	
 
 private:
 	char *response;
 	char *line;
 	char *host;
-	mailsettings *settings;
-	int port;
-	
-	
+	mailsettings *smtpsettings;
+	mailsettings *popsettings;
+	int popport;
+	int smtpport;
+	mlist *newmail;
+	mlist *allmail;
+	char *error;
+	int nummessages;
+	int rendered;
+	int *messsize;
+	char *mailbuffer;
+	int numlines;
+	char *messline;
 	
 	
 	

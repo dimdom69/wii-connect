@@ -36,6 +36,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <vector>
+#include <exception>
+#include <wchar.h>
 #include <math.h>
 #include <asndlib.h>
 #include <wiiuse/wpad.h>
@@ -219,6 +221,9 @@ class GuiElement
 		//!Set the element's parent
 		//!\param e Pointer to parent element
 		void SetParent(GuiElement * e);
+		//!Gets the element's parent
+		//!\return Pointer to parent element
+		GuiElement * GetParent();
 		//!Gets the current leftmost coordinate of the element
 		//!Considers horizontal alignment, x offset, width, and parent element's GetLeft() / GetWidth() values
 		//!\return left coordinate
@@ -574,7 +579,6 @@ class GuiImage : public GuiElement
 class GuiText : public GuiElement
 {
 	public:
-		GuiText();
 		//!Constructor
 		//!\param t Text
 		//!\param s Font size
@@ -789,9 +793,52 @@ class GuiOptionBrowser : public GuiElement
 
 		GuiButton * arrowUpBtn;
 		GuiButton * arrowDownBtn;
-		GuiButton * scrollbarBoxBtn;
 
 		GuiImage * bgOptionsImg;
+		GuiImage * scrollbarImg;
+		GuiImage * arrowDownImg;
+		GuiImage * arrowDownOverImg;
+		GuiImage * arrowUpImg;
+		GuiImage * arrowUpOverImg;
+
+		GuiImageData * bgOptions;
+		GuiImageData * bgOptionsEntry;
+		GuiImageData * scrollbar;
+		GuiImageData * arrowDown;
+		GuiImageData * arrowDownOver;
+		GuiImageData * arrowUp;
+		GuiImageData * arrowUpOver;
+
+		GuiSound * btnSoundOver;
+		GuiSound * btnSoundClick;
+		GuiTrigger * trigA;
+};
+
+//!Display a list of files
+class GuiFileBrowser : public GuiElement
+{
+	public:
+		GuiFileBrowser(int w, int h);
+		~GuiFileBrowser();
+		void ResetState();
+		void SetFocus(int f);
+		void Draw();
+		void TriggerUpdate();
+		void Update(GuiTrigger * t);
+		GuiButton * fileList[PAGESIZE];
+	protected:
+		int selectedItem;
+		bool listChanged;
+
+		GuiText * fileListText[PAGESIZE];
+		GuiImage * fileListBg[PAGESIZE];
+		GuiImage * fileListFolder[PAGESIZE];
+
+		GuiButton * arrowUpBtn;
+		GuiButton * arrowDownBtn;
+		GuiButton * scrollbarBoxBtn;
+
+		GuiImage * bgFileSelectionImg;
 		GuiImage * scrollbarImg;
 		GuiImage * arrowDownImg;
 		GuiImage * arrowDownOverImg;
@@ -800,8 +847,9 @@ class GuiOptionBrowser : public GuiElement
 		GuiImage * scrollbarBoxImg;
 		GuiImage * scrollbarBoxOverImg;
 
-		GuiImageData * bgOptions;
-		GuiImageData * bgOptionsEntry;
+		GuiImageData * bgFileSelection;
+		GuiImageData * bgFileSelectionEntry;
+		GuiImageData * fileFolder;
 		GuiImageData * scrollbar;
 		GuiImageData * arrowDown;
 		GuiImageData * arrowDownOver;
@@ -813,5 +861,7 @@ class GuiOptionBrowser : public GuiElement
 		GuiSound * btnSoundOver;
 		GuiSound * btnSoundClick;
 		GuiTrigger * trigA;
+		GuiTrigger * trigHeldA;
 };
+
 #endif

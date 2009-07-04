@@ -26,8 +26,46 @@
 
 FreeTypeGX *fontSystem;
 int ExitRequested = 0;
+extern struct emsg *ms;
+bool netHalt = false;
 email *eml;
 http *inet;
+_netaction netaction;
+static lwp_t net_t = LWP_THREAD_NULL;
+
+
+void *networkthread(void *args){
+	while(1){
+		if(netHalt){
+			LWP_SuspendThread(net_t);
+		}
+		else{
+			switch(netaction){
+				case SEND_EMAIL:
+					eml->sendemail(ms);
+					netaction = NONE;
+					break;
+				case RECV_EMAIL:
+					netaction = NONE;
+					break;
+				case NONE:
+					haltnetwork();
+					break;
+			}
+		}
+	}
+}
+
+void haltnetwork(){
+	netHalt = true;
+
+	// wait for thread to finish
+	while(!LWP_ThreadIsSuspended(net_t)) usleep(50);
+}
+void startnetwork(){
+	netHalt = false;
+	LWP_ResumeThread (net_t);
+}
 
 
 void initall(){
@@ -41,21 +79,32 @@ void initall(){
 	WPAD_SetVRes(WPAD_CHAN_ALL, screenwidth, screenheight);
 
 	
-	InitGUIThreads();
 	
 	fatInitDefault();
 	
 	printf("\x1b[7;7H");
 	
-	printf("Starting debug...");
-	
 	DEBUG_Init(GDBSTUB_DEVICE_USB, 1);
-	printf("started!\n");
 	printf("\x1b[7CInit Wifi...");
 	eml = new email();
-//	inet = new http();
 	printf("success!\n");
+	
+	mailsettings ssettings;
+	mailsettings psettings;
+	strcpy(ssettings.server,"smtp-server.tampabay.rr.com");
+	strcpy(psettings.server,"pop-server.tampabay.rr.com");
+	eml->clearsettings(SMTP);
+	eml->clearsettings(POP);
+	eml->setsettings(SMTP,&ssettings);
+	eml->setsettings(POP,&psettings);
+	ms = new emsg;
 
+	fontSystem = new FreeTypeGX();
+	fontSystem->loadFont(font_ttf, font_ttf_size, 0);
+	fontSystem->setCompatibilityMode(FTGX_COMPATIBILITY_DEFAULT_TEVOP_GX_PASSCLR | FTGX_COMPATIBILITY_DEFAULT_VTXDESC_GX_NONE);
+
+//	InitGUIThreads();
+//	LWP_CreateThread (&net_t, networkthread, NULL, NULL, 0, 40);
 }
 
 void ExitApp()
@@ -70,46 +119,11 @@ int main(int argc, char **argv) {
 	
 	
 	initall();
-	//printf("Press A to send the email\nPress B to get the index of example.com.\n");
 	
+//	MainMenu(MENU_EMAIL);	
 	
-	//MainMenu(MAIN_SCREEN);
-	
-	//struct emsg *msg;
-	
-	MainMenu(MENU_EMAIL);
-	
-	/*while(1){
-		VIDEO_WaitVSync();
-		WPAD_ScanPads();
-		u32 pressed = WPAD_ButtonsDown(0);
-		if ( pressed & WPAD_BUTTON_HOME ) exit(0);
-		if(pressed & WPAD_BUTTON_A){
-			struct emsg msg;
-			strcpy(msg.from,"jsmaster@tampabay.rr.com");
-			strcpy(msg.to,"jsmaster@tampabay.rr.com");
-			strcpy(msg.subject,"Hello world!");
-			strcpy(msg.message,"I'd like to thank the acadamy...");
-			mailsettings settings;
-			strcpy(settings.server,"71.74.56.22");
-			eml->clearsettings();
-			eml->setsettings(&settings);
-			eml->sendemail(*msg);*/
-			//delete eml;
-			//printf("Sent! I hope..\n");
-		/*}
-		if(pressed & WPAD_BUTTON_B){
-			inet->connect("208.77.188.166",80,TCP);
-			printf("%s",inet->gethttpfile("index.html","example.com",5000));
-		}
-	}*/
-	
-	while(1){
-		WPAD_ScanPads();
-		u32 pressed = WPAD_ButtonsDown(0);
-		if ( pressed & WPAD_BUTTON_HOME ) exit(0);
-		
-	}
+	mlist *ml = eml->getnewmail();
+	printf("%s",ml->ml->body);
 	
 	exit(0);
 }

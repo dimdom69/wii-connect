@@ -28,7 +28,7 @@
 
 using namespace std;
 
-
+extern void startnetwork();
 static GuiImageData * pointer[4];
 static GuiImageData * ibg = NULL;
 static GuiImageData * isidebar = NULL;
@@ -41,6 +41,10 @@ static GuiWindow * mainWindow = NULL;
 static GuiButton * bmainWindow = NULL;
 static lwp_t guithread = LWP_THREAD_NULL;
 static bool guiHalt = true;
+extern _netaction netaction;
+struct emsg *ms;
+extern email *eml;
+
 
 /****************************************************************************
  * ResumeGui
@@ -331,14 +335,14 @@ static void OnScreenKeyboard(char * var, u16 maxlen)
  * FriendMenu
  * *************************************************************************/
 static int friendmenu(){
-	
+/*	
 	int menu = MENU_FRIEND;
 	
 	HaltGui();
 	//GuiImage rect(screenwidth,screenheight,(GXColor){0,0,0,0});
 	GuiTrigger trigA;
 	trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A, PAD_BUTTON_A);
-/*	GuiWindow effect;
+	GuiWindow effect;
 	effect.Append(&rect);
 	mainWindow->Append(&effect);
 	for(int a = 0; a < 129; a += 4)
@@ -351,7 +355,7 @@ static int friendmenu(){
 			Menu_Render();
 		}
 	}
-	_break();*/
+	_break();
 	FILE *fd;
 	fd = fopen("/wiiconnect/friendlist.fls","a");
 	int datanum = 0;
@@ -430,25 +434,117 @@ static int friendmenu(){
 	HaltGui();
 	mainWindow->Remove(&w);
 	return menu;
-}
+*/}
 
 static int emailmenu(){
-	int menu = MENU_EMAIL;
-	struct emsg *ms;
-	ms = new emsg;
-	OnScreenKeyboard(ms->from,50);
-	OnScreenKeyboard(ms->to,50);
-	OnScreenKeyboard(ms->subject,50);
-	OnScreenKeyboard(ms->message,200);
-	mailsettings settings;
-	strcpy(settings.server,"71.74.56.22");
-	extern email *eml;
-	eml->clearsettings();
-	eml->setsettings(&settings);
-	eml->sendemail(*ms);
-	while(menu == MENU_NONE){
-		VIDEO_WaitVSync();
+	int menu = MENU_NONE;
+	int ret;
+	int i = 0;
+	OptionList options;
+	sprintf(options.name[i++], "From");
+	sprintf(options.name[i++], "To");
+	sprintf(options.name[i++], "Subject");
+	sprintf(options.name[i++], "Message");
+	options.length = i;
+
+	GuiText titleTxt("Email - Send Message", 28, (GXColor){255, 255, 255, 255});
+	titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
+	titleTxt.SetPosition(50,50);
+
+	GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
+	GuiImageData btnOutline(button_png);
+	GuiImageData btnOutlineOver(button_over_png);
+
+	GuiTrigger trigA;
+	trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A, PAD_BUTTON_A);
+
+	GuiText backBtnTxt("Go Back", 22, (GXColor){0, 0, 0, 255});
+	GuiImage backBtnImg(&btnOutline);
+	GuiImage backBtnImgOver(&btnOutlineOver);
+	GuiButton backBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+	backBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+	backBtn.SetPosition(100, -35);
+	backBtn.SetLabel(&backBtnTxt);
+	backBtn.SetImage(&backBtnImg);
+	backBtn.SetImageOver(&backBtnImgOver);
+	backBtn.SetSoundOver(&btnSoundOver);
+	backBtn.SetTrigger(&trigA);
+	backBtn.SetEffectGrow();
+	
+	
+	GuiText sendBtnTxt("Send", 22, (GXColor){0, 0, 0, 255});
+	GuiImage sendBtnImg(&btnOutline);
+	GuiImage sendBtnImgOver(&btnOutlineOver);
+	GuiButton sendBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+	sendBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+	sendBtn.SetPosition(300, -35);
+	sendBtn.SetLabel(&sendBtnTxt);
+	sendBtn.SetImage(&sendBtnImg);
+	sendBtn.SetImageOver(&sendBtnImgOver);
+	sendBtn.SetSoundOver(&btnSoundOver);
+	sendBtn.SetTrigger(&trigA);
+	sendBtn.SetEffectGrow();
+
+	GuiOptionBrowser optionBrowser(552, 248, &options);
+	optionBrowser.SetPosition(0, 108);
+	optionBrowser.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+	optionBrowser.SetCol2Position(185);
+
+	HaltGui();
+	GuiWindow w(screenwidth, screenheight);
+	w.Append(&backBtn);
+	w.Append(&sendBtn);
+	mainWindow->Append(&optionBrowser);
+	mainWindow->Append(&w);
+	mainWindow->Append(&titleTxt);
+	ResumeGui();
+
+	while(menu == MENU_NONE)
+	{
+		VIDEO_WaitVSync ();
+
+		ret = optionBrowser.GetClickedOption();
+		
+		snprintf (options.value[0], 50, "%s", ms->from);
+		snprintf (options.value[1], 50, "%s", ms->to);
+		snprintf (options.value[2], 50, "%s", ms->subject);
+		snprintf (options.value[3], 200, "%s", ms->message);
+
+		switch (ret)
+		{
+			case 0:
+				OnScreenKeyboard(ms->from,50);
+				break;
+
+			case 1:
+				OnScreenKeyboard(ms->to,50);
+				break;
+
+			case 2:
+				OnScreenKeyboard(ms->subject,50);
+				break;
+
+			case 3:
+				OnScreenKeyboard(ms->message,200);
+				break;
+		}
+
+		if(backBtn.GetState() == STATE_CLICKED)
+		{
+			menu = MAIN_SCREEN;
+		}
+		if(sendBtn.GetState() == STATE_CLICKED){
+			HaltGui();
+			printf("Sending...");
+			eml->sendemail(ms);
+			printf("Done!");
+			ResumeGui();
+		}
 	}
+	HaltGui();
+	mainWindow->Remove(&optionBrowser);
+	mainWindow->Remove(&w);
+	mainWindow->Remove(&titleTxt);
 	return menu;
 }
 
