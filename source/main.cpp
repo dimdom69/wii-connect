@@ -95,7 +95,7 @@ void initall(){
 	strcpy(ssettings.server,"smtp-server.tampabay.rr.com");
 	strcpy(psettings.server,"pop-server.tampabay.rr.com");
 	strcpy(psettings.user,"jsmaster");
-	strcpy(psettings.password,"godisgood");
+	strcpy(psettings.password,"/*nottelling ;-) */");
 	ssettings.port = 25;
 	psettings.port = 110;
 	eml->clearsettings(SMTP);
