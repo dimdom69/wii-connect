@@ -85,7 +85,8 @@ void initall(){
 	printf("\x1b[7;7H");
 	
 	DEBUG_Init(GDBSTUB_DEVICE_USB, 1);
-	printf("\x1b[7CInit Wifi...");
+	
+	printf("Init Wifi...");
 	eml = new email();
 	printf("success!\n");
 	
@@ -93,12 +94,16 @@ void initall(){
 	mailsettings psettings;
 	strcpy(ssettings.server,"smtp-server.tampabay.rr.com");
 	strcpy(psettings.server,"pop-server.tampabay.rr.com");
+	strcpy(psettings.user,"jsmaster");
+	strcpy(psettings.password,"godisgood");
+	ssettings.port = 25;
+	psettings.port = 110;
 	eml->clearsettings(SMTP);
 	eml->clearsettings(POP);
 	eml->setsettings(SMTP,&ssettings);
 	eml->setsettings(POP,&psettings);
 	ms = new emsg;
-
+	
 	fontSystem = new FreeTypeGX();
 	fontSystem->loadFont(font_ttf, font_ttf_size, 0);
 	fontSystem->setCompatibilityMode(FTGX_COMPATIBILITY_DEFAULT_TEVOP_GX_PASSCLR | FTGX_COMPATIBILITY_DEFAULT_VTXDESC_GX_NONE);
@@ -120,10 +125,30 @@ int main(int argc, char **argv) {
 	
 	initall();
 	
-//	MainMenu(MENU_EMAIL);	
+	printf("\x1b[7CSending test email...");
 	
-	mlist *ml = eml->getnewmail();
-	printf("%s",ml->ml->body);
+	strcpy(ms->from,"jsmaster@tampabay.rr.com");
+	strcpy(ms->to,"jsmaster@tampabay.rr.com");
+	strcpy(ms->subject,"Hello!");
+	strcpy(ms->message,"How are you?");
+	
+	eml->sendemail(ms);
+	
+	printf("done!\n");
+	
+//	MainMenu(MENU_EMAIL);	
+
+	printf("\x1b[7CGetting email...");
+
+	messlist *mlroot = eml->getnewmail();
+	messlist *ml;
+	ml = mlroot;
+	while(ml->next){
+		printf("%s",ml->body);
+		ml = ml->next;
+	}
+	
+	printf("done!");
 	
 	exit(0);
 }

@@ -17,8 +17,8 @@ email::email(){
 	line = new char [100];
 	smtpsettings = new mailsettings;
 	popsettings = new mailsettings;
-	newmail = new mlist;
-	allmail = new mlist;
+	smtpsettings->port = 0;
+	popsettings->port = 0;
 }
 
 email::~email(){
@@ -40,7 +40,7 @@ void email::clearsettings(settype st){
 }
 
 void email::sendemail(struct emsg *mess){
-	if(!smtpsettings->port){
+	if(smtpsettings->port == 0){
 		smtpport = 25;
 	}
 	else{
@@ -146,17 +146,35 @@ void email::parsemessage(messlist *ml,char *mess){
 	}
 }
 
+void email::getsize(char *response, int *sizes,int numdata){
+	for(int x = 0;x<(int)strlen(response);x++){
+		if(response[x] == '\n'){
+			p = response + x + 1;
+			break;
+		}
+	}
+	for(int x = 0;x<numdata;x++){
+		p = (strchr(p,' ')+1);
+		for(bl = 0;((int)response[bl]) > 47 && ((int)response[bl]) < 58 ;bl++)
+		strncpy(b,response,bl);
+		sizes[x] = atoi(b);
+		printf("%d",sizes[x]);
+	}
+}
+
 int email::renderpopresponse(const char *resp){
-	error = new char [3];
-	strncpy(error,resp,3);
-	if(strcmp(error,"+OK")){
+	pos = 0;
+	if(strncmp(resp,"+OK",3)){
 		return 0;
 	}
-	nummessages = (int)resp[4];
+	pos = (int)(strchr(resp,' ')-resp);
+	pos++;
+	nummessages = ((int)resp[pos])-48;			//ASCII number offset
+	printf("\x1b[7C%d",nummessages);
 	return nummessages;
 }
 
-mlist *email::getnewmail(){
+messlist *email::getnewmail(){
 	if(!popsettings->port){
 		popport = 110;
 	}
@@ -165,39 +183,56 @@ mlist *email::getnewmail(){
 	}
 	connect(popsettings->server,popport,TCP);
 	response = read(200);
+	printf("\x1b[7CServer: %s",response);
 	sprintf(line,"USER %s\r\n",popsettings->user);
+	printf("\x1b[7CClient: %s",line);
 	writetosocket(line);
 	response = read(200);
+	printf("\x1b[7CServer: %s",response);
 	sprintf(line,"PASS %s\r\n",popsettings->password);
+	printf("\x1b[7CClient: %s",line);
 	writetosocket(line);
 	response = read(200);
-	writetosocket("STAT");
+	printf("\x1b[7CServer: %s",response);
+	printf("\x1b[7CClient: STAT\r\n");
+	writetosocket("STAT\r\n");
 	response = read(200);
+	printf("\x1b[7CServer: %s",response);
 	rendered = renderpopresponse(response);
 	messsize = new int [rendered];
+	printf("\x1b[7CClient: LIST\r\n");
+	writetosocket("LIST\r\n");
 	response = read(200);
-	for(int x = 0;x<rendered;x++){
-		response = read(200);
-		messsize[x] = (int)(strchr(response,' ')+1);
-	}
+	printf("\x1b[7CServer: %s",response);
+	getsize(response,messsize,rendered);
 	response = read(200);
-	if(strcmp(response,".\r\n")){
-		//ERROR
-	}
-	newmail->amount = rendered;
-	newmail->ml = new messlist [rendered];
+	printf("\x1b[7CServer: %s",response);
+	/*if(strcmp(response,".\r\n")){
+		printf("\x1b[7CError...\n");
+	}*/
+	
+	newmailroot = new messlist [rendered-1];
+	newmailroot->next = 0;
+	newmail = newmailroot;
 	for(int x = 0;x<rendered;x++){
 		mailbuffer = new char [messsize[x]];
-		sprintf(line,"RETR %d",x+1);
+		sprintf(line,"RETR %d\r\n",x+1);
+		printf("\x1b[7CClient: %s",line);
 		writetosocket(line);
 		mailbuffer = read(messsize[x]);
-		parsemessage(newmail->ml,mailbuffer);
+		printf("\x1b[7CServer: %s",mailbuffer);
+		parsemessage(newmail,mailbuffer);
+		newmail = newmail->next;
+		newmail->next = 0;
 	}/*
 	for(int x = 0;x<rendered;x++){
 		sprintf(line,"DELE %d",x+1)
 		writetosocket(line);
 		response = read(200);
 	}*/
+	printf("\x1b[7CClient: %s",line);
 	writetosocket("QUIT");
 	response = read(200);
+	printf("\x1b[7CServer: %s",response);
+	return newmailroot;
 }

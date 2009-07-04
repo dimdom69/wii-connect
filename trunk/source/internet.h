@@ -31,12 +31,60 @@
 #define POP_SUBJECT "Subject:"
 #define POP_BODY "\r\n\r\n"
 
+
+
+using namespace std;
+
+
+
+typedef struct mailsettings_s{
+	char server[50];
+	int port;
+	char user[50];
+	char password[50];
+}mailsettings;
+typedef struct messlist_s{
+	char *subject;
+	char *from;
+	char *to;
+	char *cc;
+	char *date;
+	char *body;
+	int newmail;
+	int important;
+	int starred;
+	
+	messlist_s *next;
+	
+}messlist;
+
+struct emsg{
+	char from[50];
+	char to[50];
+	char subject[50];
+	char message[200];	
+};	
+
+typedef struct _messdata{
+	int num;
+	int size;
+}messdata;
+
+enum settype{
+	SMTP,
+	POP,
+	IMAP
+};
+
 enum net_protocol{
 	UDP,
 	TCP
 };
 
-using namespace std;
+
+
+
+
 
 
 	
@@ -109,42 +157,7 @@ private:
 	char *mesbuf;
 	char *status;
 };
-typedef struct mailsettings_s{
-	char server[50];
-	int port;
-	char user[50];
-	char password[50];
-}mailsettings;
-typedef struct messlist_s{
-	char *subject;
-	char *from;
-	char *to;
-	char *cc;
-	char *date;
-	char *body;
-	int newmail;
-	int important;
-	int starred;
-}messlist;
 
-typedef struct mlist_s{
-	int amount;
-	messlist *ml;
-}mlist;
-
-struct emsg{
-	char from[50];
-	char to[50];
-	char subject[50];
-	char message[200];
-	
-};	
-
-enum settype{
-	SMTP,
-	POP,
-	IMAP
-};
 	
 
 class email : public internet{
@@ -155,13 +168,14 @@ public:
 	email();
 	~email();
 	void sendemail(struct emsg *mess);
-	mlist *getallmail(); //must have set settings first; gets new mail + saved mail
+	messlist *getallmail(); //must have set settings first; gets new mail + saved mail
 	void setsettings(settype st,mailsettings *s);
 	void getsettings(settype st,mailsettings *s);
 	void clearsettings(settype st);
-	mlist *getnewmail();
+	messlist *getnewmail();
 	int renderpopresponse(const char *resp);
 	void parsemessage(messlist *ml,char *mess);
+	void getsize(char *response,int *sizes,int numdata);
 	
 
 private:
@@ -172,8 +186,10 @@ private:
 	mailsettings *popsettings;
 	int popport;
 	int smtpport;
-	mlist *newmail;
-	mlist *allmail;
+	messlist *newmail;
+	messlist *allmail;
+	messlist *newmailroot;
+	messlist *allmailroot;
 	char *error;
 	int nummessages;
 	int rendered;
@@ -181,7 +197,10 @@ private:
 	char *mailbuffer;
 	int numlines;
 	char *messline;
-	
+	int pos;
+	char *b;
+	int bl;
+	char *p;
 	
 	
 };

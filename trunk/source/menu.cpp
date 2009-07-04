@@ -335,10 +335,10 @@ static void OnScreenKeyboard(char * var, u16 maxlen)
  * FriendMenu
  * *************************************************************************/
 static int friendmenu(){
-/*	
+	
 	int menu = MENU_FRIEND;
 	
-	HaltGui();
+/*	HaltGui();
 	//GuiImage rect(screenwidth,screenheight,(GXColor){0,0,0,0});
 	GuiTrigger trigA;
 	trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A, PAD_BUTTON_A);
@@ -432,9 +432,9 @@ static int friendmenu(){
 		
 	}
 	HaltGui();
-	mainWindow->Remove(&w);
+	mainWindow->Remove(&w);*/
 	return menu;
-*/}
+}
 
 static int emailmenu(){
 	int menu = MENU_NONE;
