@@ -15,5 +15,7 @@
 void ExitApp();
 extern int ExitRequested;
 extern FreeTypeGX *fontSystem;
+void haltnetwork();
+void startnetwork();
 
 #endif

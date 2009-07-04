@@ -21,21 +21,6 @@ static GXColor presetColor = (GXColor){255, 255, 255, 255};
 /**
  * Constructor for the GuiText class.
  */
-
-GuiText::GuiText()
-{
-	text = NULL;
-	size = presetSize;
-	color = presetColor;
-	alpha = presetColor.a;
-	style = presetStyle;
-	maxWidth = presetMaxWidth;
-
-	alignmentHor = presetAlignmentHor;
-	alignmentVert = presetAlignmentVert;
-	
-	text = fontSystem->charToWideChar("");
-}
 GuiText::GuiText(const char * t, int s, GXColor c)
 {
 	text = NULL;
