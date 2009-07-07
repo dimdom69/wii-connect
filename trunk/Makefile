@@ -21,7 +21,7 @@ include $(DEVKITPPC)/wii_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	wiiconnect
 BUILD		:=	build
-SOURCES		:=	source source/libwiigui source/images source/fonts source/sounds wiiconnect-gui-images
+SOURCES		:=	source source/libwiigui source/images source/fonts source/sounds wiiconnect-gui-images source/tinyxml
 INCLUDES	:=	source
 
 #---------------------------------------------------------------------------------
