@@ -82,7 +82,7 @@ void initall(){
 	
 	fatInitDefault();
 	
-	printf("\x1b[7;7H");
+	printf("\x1b[2;7H");
 	
 	DEBUG_Init(GDBSTUB_DEVICE_USB, 1);
 	
@@ -138,17 +138,26 @@ int main(int argc, char **argv) {
 	
 //	MainMenu(MENU_EMAIL);	
 
-	printf("\x1b[7CGetting email...");
+	printf("\x1b[7CGetting test email...");
 
 	messlist *mlroot = eml->getnewmail();
-//	messlist *ml;
-//	ml = mlroot;
-//	while(ml->next){
-//		printf("%s",ml->body);
-//		ml = ml->next;
-//	}
-	
-	printf("done!");
-	
+	messlist *ml;
+	ml = mlroot;
+	if(ml != 0){
+		printf("%s",ml->body);
+		while(ml->next != 0){
+			ml = ml->next;
+			printf("%s",ml->body);
+		}
+	}
+	printf("done!\n\nPress HOME to exit...");
+	while(1){
+		WPAD_ScanPads();
+		u32 pressed = WPAD_ButtonsDown(0);
+		if(pressed & WPAD_BUTTON_HOME){
+			printf("\n\nExiting...");
+			exit(0);
+		}
+	}
 	exit(0);
 }
