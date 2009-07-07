@@ -200,13 +200,13 @@ messlist *email::getnewmail(){
 	printf("\x1b[7CServer: %s",response);
 	rendered = renderpopresponse(response);
 	messsize = new int [rendered];
-	printf("\x1b[7CClient: LIST\r\n");
-	writetosocket("LIST\r\n");
-	response = read(200);
-	printf("\x1b[7CServer: %s",response);
-	getsize(response,messsize,rendered);
-	response = read(200);
-	printf("\x1b[7CServer: %s",response);
+//	printf("\x1b[7CClient: LIST\r\n");
+//	writetosocket("LIST\r\n");
+//	response = read(200);
+//	printf("\x1b[7CServer: %s",response);
+//	while(strcat(response,read(200)));
+//	printf("\x1b[7CServer: %s",response);
+
 	/*if(strcmp(response,".\r\n")){
 		printf("\x1b[7CError...\n");
 	}*/
@@ -214,25 +214,29 @@ messlist *email::getnewmail(){
 	newmailroot = new messlist [rendered-1];
 	newmailroot->next = 0;
 	newmail = newmailroot;
-	for(int x = 0;x<rendered;x++){
-		mailbuffer = new char [messsize[x]];
+	/*for(int x = 0;x<rendered;x++){
+		mailbuffer = new char [1000];
 		sprintf(line,"RETR %d\r\n",x+1);
 		printf("\x1b[7CClient: %s",line);
 		writetosocket(line);
-		mailbuffer = read(messsize[x]);
+		mailbuffer = read(1000);
 		printf("\x1b[7CServer: %s",mailbuffer);
 		parsemessage(newmail,mailbuffer);
 		newmail = newmail->next;
 		newmail->next = 0;
-	}/*
+	}
 	for(int x = 0;x<rendered;x++){
 		sprintf(line,"DELE %d",x+1)
 		writetosocket(line);
 		response = read(200);
 	}*/
-	printf("\x1b[7CClient: %s",line);
+	writetosocket("RETR 1\r\n");
+	printf("\x1b[7CClient: RETR 1\r\n");
+	mailbuffer = new char [2000];
+	while(strcmp((mailbuffer = read(2000)),".\r\n")){
+		printf("\x1b[7CServer: %s",mailbuffer);
+	}
+	printf("\x1b[7CClient: QUIT");
 	writetosocket("QUIT");
-	response = read(200);
-	printf("\x1b[7CServer: %s",response);
 	return newmailroot;
 }

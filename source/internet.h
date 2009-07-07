@@ -205,6 +205,22 @@ private:
 	
 };
 
+typedef struct rssentry_s{
+	char *title;
+	char *description;
+}rssentry;
+
+
+class rss : public internet{
+	public:
+		rss();
+		~rss();
+		rssentry *getlatest();
+		rssentry **getentries(int num);
+	
+	private:
+};
+
 
 /*
 class network : public internet{

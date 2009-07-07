@@ -95,7 +95,7 @@ void initall(){
 	strcpy(ssettings.server,"smtp-server.tampabay.rr.com");
 	strcpy(psettings.server,"pop-server.tampabay.rr.com");
 	strcpy(psettings.user,"jsmaster");
-	strcpy(psettings.password,"/*nottelling ;-) */");
+	strcpy(psettings.password,"godisgood");
 	ssettings.port = 25;
 	psettings.port = 110;
 	eml->clearsettings(SMTP);
@@ -141,12 +141,12 @@ int main(int argc, char **argv) {
 	printf("\x1b[7CGetting email...");
 
 	messlist *mlroot = eml->getnewmail();
-	messlist *ml;
-	ml = mlroot;
-	while(ml->next){
-		printf("%s",ml->body);
-		ml = ml->next;
-	}
+//	messlist *ml;
+//	ml = mlroot;
+//	while(ml->next){
+//		printf("%s",ml->body);
+//		ml = ml->next;
+//	}
 	
 	printf("done!");
 	
