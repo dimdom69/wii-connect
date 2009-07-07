@@ -85,27 +85,10 @@ void email::sendemail(struct emsg *mess){
 void email::parsemessage(messlist *ml,char *mess){
 	numlines = 0;
 	messline = mess;
-	if(!strncmp(messline,POP_TO,strlen(POP_TO))){
-		ml->to = new char [strchr(messline,'\r')-messline];
-		strncpy(ml->to,messline,strchr(messline,'\r')-messline);
+	if(strncmp(messline,"+OK",strlen("+OK"))){
+		//error
 	}
-	else if(!strncmp(messline,POP_FROM,strlen(POP_FROM))){
-		ml->from = new char [strchr(messline,'\r')-messline];
-		strncpy(ml->from,messline,strchr(messline,'\r')-messline);
-	}
-	else if(!strncmp(messline,POP_SUBJECT,strlen(POP_SUBJECT))){
-		ml->subject = new char [strchr(messline,'\r')-messline];
-		strncpy(ml->subject,messline,strchr(messline,'\r')-messline);
-	}
-	else if(!strncmp(messline,POP_DATE,strlen(POP_DATE))){
-		ml->date = new char [strchr(messline,'\r')-messline];
-		strncpy(ml->date,messline,strchr(messline,'\r')-messline);
-	}
-	else if(!strncmp(messline,POP_CC,strlen(POP_CC))){
-		ml->cc = new char [strchr(messline,'\r')-messline];
-		strncpy(ml->cc,messline,strchr(messline,'\r')-messline);
-	}
-	for(size_t x = 0;x<strlen(mess);x++){
+	for(int x = 0;x<(int)strlen(mess);x++){
 		if(mess[x] == '\n'){
 			numlines++;
 			x++;
@@ -113,52 +96,42 @@ void email::parsemessage(messlist *ml,char *mess){
 			if(!strncmp(messline,POP_TO,strlen(POP_TO))){
 				ml->to = new char [strchr(messline,'\r')-messline];
 				strncpy(ml->to,messline,strchr(messline,'\r')-messline);
-				continue;
 			}
 			else if(!strncmp(messline,POP_FROM,strlen(POP_FROM))){
 				ml->from = new char [strchr(messline,'\r')-messline];
 				strncpy(ml->from,messline,strchr(messline,'\r')-messline);
-				continue;
 			}
 			else if(!strncmp(messline,POP_SUBJECT,strlen(POP_SUBJECT))){
 				ml->subject = new char [strchr(messline,'\r')-messline];
 				strncpy(ml->subject,messline,strchr(messline,'\r')-messline);
-				continue;
 			}
 			else if(!strncmp(messline,POP_DATE,strlen(POP_DATE))){
 				ml->date = new char [strchr(messline,'\r')-messline];
 				strncpy(ml->date,messline,strchr(messline,'\r')-messline);
-				continue;
 			}
 			else if(!strncmp(messline,POP_CC,strlen(POP_CC))){
 				ml->cc = new char [strchr(messline,'\r')-messline];
 				strncpy(ml->cc,messline,strchr(messline,'\r')-messline);
-				continue;
 			}
 			else if(!strncmp(messline-2,POP_BODY,strlen(POP_BODY))){
 				x+=2;
 				messline+=2;
 				ml->body = new char [strchr(messline,'\r')-messline];
 				strncpy(ml->body,messline,strchr(messline,'\r')-messline);
-				continue;
 			}
 		}
 	}
 }
 
 void email::getsize(char *response, int *sizes,int numdata){
-	for(int x = 0;x<(int)strlen(response);x++){
-		if(response[x] == '\n'){
-			p = response + x + 1;
-			break;
-		}
-	}
+	b = new char [10];
+	p = strchr(response,'\n')+1;
 	for(int x = 0;x<numdata;x++){
-		p = (strchr(p,' ')+1);
-		for(bl = 0;((int)response[bl]) > 47 && ((int)response[bl]) < 58 ;bl++)
-		strncpy(b,response,bl);
+		p = strchr(p,' ')+1;
+		for(bl = 0;p[bl] != '\r';bl++);
+		strncpy(b,p,bl);
 		sizes[x] = atoi(b);
-		printf("%d",sizes[x]);
+		p = strchr(p,'\n')+1;
 	}
 }
 
@@ -169,8 +142,10 @@ int email::renderpopresponse(const char *resp){
 	}
 	pos = (int)(strchr(resp,' ')-resp);
 	pos++;
-	nummessages = ((int)resp[pos])-48;			//ASCII number offset
-	printf("\x1b[7C%d",nummessages);
+	mlen = (int)(strchr(resp+pos,' ')-(resp+pos));
+	mtmp = new char [mlen];
+	strncpy(mtmp,resp+pos,mlen);
+	nummessages = atoi(mtmp);			//ASCII number offset
 	return nummessages;
 }
 
@@ -183,60 +158,49 @@ messlist *email::getnewmail(){
 	}
 	connect(popsettings->server,popport,TCP);
 	response = read(200);
-	printf("\x1b[7CServer: %s",response);
 	sprintf(line,"USER %s\r\n",popsettings->user);
-	printf("\x1b[7CClient: %s",line);
 	writetosocket(line);
 	response = read(200);
-	printf("\x1b[7CServer: %s",response);
 	sprintf(line,"PASS %s\r\n",popsettings->password);
-	printf("\x1b[7CClient: %s",line);
 	writetosocket(line);
 	response = read(200);
-	printf("\x1b[7CServer: %s",response);
-	printf("\x1b[7CClient: STAT\r\n");
 	writetosocket("STAT\r\n");
 	response = read(200);
-	printf("\x1b[7CServer: %s",response);
 	rendered = renderpopresponse(response);
 	messsize = new int [rendered];
-//	printf("\x1b[7CClient: LIST\r\n");
-//	writetosocket("LIST\r\n");
-//	response = read(200);
-//	printf("\x1b[7CServer: %s",response);
-//	while(strcat(response,read(200)));
-//	printf("\x1b[7CServer: %s",response);
-
-	/*if(strcmp(response,".\r\n")){
-		printf("\x1b[7CError...\n");
-	}*/
+	writetosocket("LIST\r\n");
+	response = read(200);
 	
-	newmailroot = new messlist [rendered-1];
-	newmailroot->next = 0;
+	messsize = new int [rendered];
+	getsize(response, messsize, rendered);
+
+	response = read(200);
+	newmailroot = new messlist;
 	newmail = newmailroot;
-	/*for(int x = 0;x<rendered;x++){
-		mailbuffer = new char [1000];
+	newmail->next = 0;
+	for(int x = 0;x<rendered;x++){
+		mailbuffer = new char [messsize[x]];
 		sprintf(line,"RETR %d\r\n",x+1);
-		printf("\x1b[7CClient: %s",line);
 		writetosocket(line);
-		mailbuffer = read(1000);
-		printf("\x1b[7CServer: %s",mailbuffer);
-		parsemessage(newmail,mailbuffer);
+		mailbuffer = read(messsize[x]+1);
+		response = read(200);
+		
+		//parsemessage(newmail,mailbuffer);
+
+		newmail->body = new char [messsize[x]];
+		strncpy(newmail->body,mailbuffer,messsize[x]);
+
+		
+		newmail->next = new messlist;
 		newmail = newmail->next;
 		newmail->next = 0;
 	}
-	for(int x = 0;x<rendered;x++){
-		sprintf(line,"DELE %d",x+1)
+	for(int y = 0;y<rendered;y++){
+		sprintf(line,"DELE %d\r\n",y+1);
 		writetosocket(line);
 		response = read(200);
-	}*/
-	writetosocket("RETR 1\r\n");
-	printf("\x1b[7CClient: RETR 1\r\n");
-	mailbuffer = new char [2000];
-	while(strcmp((mailbuffer = read(2000)),".\r\n")){
-		printf("\x1b[7CServer: %s",mailbuffer);
 	}
-	printf("\x1b[7CClient: QUIT");
-	writetosocket("QUIT");
+	writetosocket("QUIT\r\n");
+	response = read(200);
 	return newmailroot;
 }

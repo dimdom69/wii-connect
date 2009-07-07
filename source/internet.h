@@ -190,6 +190,8 @@ private:
 	messlist *allmail;
 	messlist *newmailroot;
 	messlist *allmailroot;
+	int mlen;
+	char *mtmp;
 	char *error;
 	int nummessages;
 	int rendered;
@@ -222,33 +224,24 @@ class rss : public internet{
 };
 
 
-/*
-class network : public internet{
-public:
-	network();
-	~network();
-	void connect(char *a,u32 b = NULL, int c = 80, int d = 1);	
-	char *gethttpfile(char *a,char *h = NULL,int b = 1025, int c = 1);
-	const char *getstate();
-	void writetosocket( char *a,int b = 1);
-	char *readfromsocket(int a = 1025,int b = 1);
-	char *file;
-	char *write;
-	int bufsize;
-	int snum;
-	char *ipc;
-	u32 ip;
-	int port;
-	char *host;
-	s32 netstate;
-	char *redfromsocket;
-	const char *gotnetstate;
-	char *gothttpfile;
-	http *net;
-	int all;
-protected:
+class im : public internet{
 	
-private:
-
 };
-*/
+
+
+class xmpp : public im{
+	
+};
+
+class aim : public im{
+	
+};
+
+
+class msn : public im{
+	
+};
+
+class irc : public im{
+	
+};
