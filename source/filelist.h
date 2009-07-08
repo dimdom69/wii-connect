@@ -174,4 +174,13 @@ extern const u8		addfriend_png[];
 extern const u32	addfriend_png_size;
 
 
+
+
+
+
+
+
+
+
+
 #endif

@@ -25,8 +25,187 @@
 #include "input.h"
 #include "filelist.h"
 #include "internet.h"
+#include "unzip/unzip.h"
 
 using namespace std;
+
+
+
+
+
+
+
+
+//Theme images-----------------------------------------------
+
+u8		*new_font_ttf;
+u32	new_font_ttf_size = 0;
+
+u8		*new_bg_music_ogg;
+u32	new_bg_music_ogg_size = 0;
+
+u8		*new_button_over_pcm;
+u32	new_button_over_pcm_size = 0;
+
+u8		*new_button_click_pcm;
+u32	new_button_click_pcm_size = 0;
+
+u8		*new_button_png;
+u32	new_button_png_size = 0;
+
+u8		*new_button_over_png;
+u32	new_button_over_png_size = 0;
+
+u8		*new_button_large_png;
+u32	new_button_large_png_size = 0;
+
+u8		*new_button_large_over_png;
+u32	new_button_large_over_png_size = 0;
+
+u8		*new_dialogue_box_png;
+u32	new_dialogue_box_png_size = 0;
+
+u8		*new_bg_options_png;
+u32	new_bg_options_png_size = 0;
+
+u8		*new_bg_options_entry_png;
+u32	new_bg_options_entry_png_size = 0;
+
+u8		*new_folder_png;
+u32	new_folder_png_size = 0;
+
+u8		*new_bg_file_selection_png;
+u32	new_bg_file_selection_png_size = 0;
+
+u8		*new_bg_file_selection_entry_png;
+u32	new_bg_file_selection_entry_png_size = 0;
+
+u8		*new_scrollbar_png;
+u32	new_scrollbar_png_size = 0;
+
+u8		*new_scrollbar_arrowup_png;
+u32	new_scrollbar_arrowup_png_size = 0;
+
+u8		*new_scrollbar_arrowup_over_png;
+u32	new_scrollbar_arrowup_over_png_size = 0;
+
+u8		*new_scrollbar_arrowdown_png;
+u32	new_scrollbar_arrowdown_png_size = 0;
+
+u8		*new_scrollbar_arrowdown_over_png;
+u32	new_scrollbar_arrowdown_over_png_size = 0;
+
+u8		*new_scrollbar_box_png;
+u32	new_scrollbar_box_png_size = 0;
+
+u8		*new_scrollbar_box_over_png;
+u32	new_scrollbar_box_over_png_size = 0;
+
+u8		*new_keyboard_textbox_png;
+u32	new_keyboard_textbox_png_size = 0;
+
+u8		*new_keyboard_key_png;
+u32	new_keyboard_key_png_size = 0;
+
+u8		*new_keyboard_key_over_png;
+u32	new_keyboard_key_over_png_size = 0;
+
+u8		*new_keyboard_mediumkey_png;
+u32	new_keyboard_mediumkey_png_size = 0;
+
+u8		*new_keyboard_mediumkey_over_png;
+u32	new_keyboard_mediumkey_over_png_size = 0;
+
+u8		*new_keyboard_largekey_png;
+u32	new_keyboard_largekey_png_size = 0;
+
+u8		*new_keyboard_largekey_over_png;
+u32	new_keyboard_largekey_over_png_size = 0;
+
+u8		*new_player1_point_png;
+u32	new_player1_point_png_size = 0;
+
+u8		*new_player2_point_png;
+u32	new_player2_point_png_size = 0;
+
+u8		*new_player3_point_png;
+u32	new_player3_point_png_size = 0;
+
+u8		*new_player4_point_png;
+u32	new_player4_point_png_size = 0;
+
+u8		*new_player1_grab_png;
+u32	new_player1_grab_png_size = 0;
+
+u8		*new_player2_grab_png;
+u32	new_player2_grab_png_size = 0;
+
+u8		*new_player3_grab_png;
+u32	new_player3_grab_png_size = 0;
+
+u8		*new_player4_grab_png;
+u32	new_player4_grab_png_size = 0;
+
+u8		*new_main_outline_png;
+u32	new_main_outline_png_size = 0;
+
+u8		*new_down_png;
+u32	new_down_png_size = 0;
+
+u8		*new_network_png;
+u32	new_network_png_size = 0;
+
+u8		*new_notify_png;
+u32	new_notify_png_size = 0;
+
+u8		*new_refresh_png;
+u32	new_refresh_png_size = 0;
+
+u8		*new_wiiconnect_png;
+u32	new_wiiconnect_png_size = 0;
+
+u8		*new_bg_png;
+u32	new_bg_png_size = 0;
+
+u8		*new_chat_png;
+u32	new_chat_png_size = 0;
+
+u8		*new_wiiconnectblack_png;
+u32	new_wiiconnectblack_png_size = 0;
+
+u8		*new_news_png;
+u32	new_news_png_size = 0;
+
+u8		*new_email_png;
+u32	new_email_png_size = 0;
+
+u8		*new_sidebar_png;
+u32	new_sidebar_png_size = 0;
+
+u8		*new_friendlist_png;
+u32	new_friendlist_png_size = 0;
+
+u8		*new_poke_png;
+u32	new_poke_png_size = 0;
+
+u8		*new_hbb_png;
+u32	new_hbb_png_size = 0;
+
+u8		*new_exit_png;
+u32	new_exit_png_size = 0;
+
+u8		*new_addfriend_png;
+u32	new_addfriend_png_size = 0;
+
+
+
+
+
+
+//End Theme images-----------------------------------------------
+
+
+
 
 extern void startnetwork();
 static GuiImageData * pointer[4];
@@ -83,7 +262,58 @@ HaltGui()
 
 
 
-
+int loadtheme(char *file){
+	unzFile f = unzOpen(file);
+	if(!f) return -1;
+	unz_file_info *info;
+	info = new unz_file_info;
+	if(unzLocateFile(f,"exit.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_exit_png = new u8 [info->uncompressed_size];
+		new_exit_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_exit_png,info->uncompressed_size);
+	}
+	if(unzLocateFile(f,"news.png",2) == UNZ_OK){
+		
+	}
+	if(unzLocateFile(f,"email.png",2) == UNZ_OK){
+		
+	}
+	if(unzLocateFile(f,"chat.png",2) == UNZ_OK){
+		
+	}
+	if(unzLocateFile(f,"friendlist.png",2) == UNZ_OK){
+		
+	}
+	if(unzLocateFile(f,"background.png",2) == UNZ_OK){
+		
+	}
+	if(unzLocateFile(f,"sidebar.png",2) == UNZ_OK){
+		
+	}
+	if(unzLocateFile(f,"refresh.png",2) == UNZ_OK){
+		
+	}
+	if(unzLocateFile(f,"download.png",2) == UNZ_OK){
+		
+	}
+	if(unzLocateFile(f,"hbb.png",2) == UNZ_OK){
+		
+	}
+	if(unzLocateFile(f,"poke.png",2) == UNZ_OK){
+		
+	}
+	if(unzLocateFile(f,"logo.png",2) == UNZ_OK){
+		
+	}
+	if(unzLocateFile(f,"wifi.png",2) == UNZ_OK){
+		
+	}
+	if(unzLocateFile(f,"addfriend.png",2) == UNZ_OK){
+		
+	}
+	return 0;
+}
 
 
 
@@ -555,20 +785,46 @@ static int MainScreen(){
 	
 	int menu = MENU_NONE;
 
-
-	GuiImageData iwiiconnect(wiiconnect_png);
-	GuiImageData ichat(chat_png);
-	GuiImageData idown(down_png);
-	GuiImageData iemail(email_png);
-	GuiImageData ifolder(folder_png);
-	GuiImageData inetwork(network_png);
-	GuiImageData inews(news_png);
-	GuiImageData irefresh(refresh_png);
-	GuiImageData iwiiconnectblack(wiiconnectblack_png);
-	GuiImageData ifriendlist(friendlist_png);
-	GuiImageData ihbb(hbb_png);
-	GuiImageData iexit(exit_png);
-	GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
+	GuiImageData *iwiiconnect;
+	GuiImageData *ichat;
+	GuiImageData *idown;
+	GuiImageData *iemail;
+	GuiImageData *ifolder;
+	GuiImageData *inetwork;
+	GuiImageData *inews;
+	GuiImageData *irefresh;
+	GuiImageData *iwiiconnectblack;
+	GuiImageData *ifriendlist;
+	GuiImageData *ihbb;
+	GuiImageData *iexit;
+	GuiSound *btnSoundOver;
+	
+	if(new_wiiconnect_png_size) iwiiconnect = new GuiImageData(new_wiiconnect_png);
+	else iwiiconnect = new GuiImageData(wiiconnect_png);
+	if(new_chat_png_size) ichat = new GuiImageData(new_chat_png);
+	else ichat = new GuiImageData(chat_png);
+	if(new_down_png_size) idown = new GuiImageData(new_down_png);
+	else idown = new GuiImageData(down_png);
+	if(new_email_png_size) iemail = new GuiImageData(new_email_png);
+	else iemail = new GuiImageData(email_png);
+	if(new_folder_png_size) ifolder = new GuiImageData(new_folder_png);
+	else ifolder = new GuiImageData(folder_png);
+	if(new_network_png_size) inetwork = new GuiImageData(new_network_png);
+	else inetwork = new GuiImageData(network_png);
+	if(new_news_png_size) inews = new GuiImageData(new_news_png);
+	else inews = new GuiImageData(news_png);
+	if(new_refresh_png_size) irefresh = new GuiImageData(new_refresh_png);
+	else irefresh = new GuiImageData(refresh_png);
+	if(new_wiiconnectblack_png) iwiiconnectblack = new GuiImageData(new_wiiconnectblack_png);
+	else iwiiconnectblack = new GuiImageData(wiiconnectblack_png);
+	if(new_friendlist_png_size) ifriendlist = new GuiImageData(new_friendlist_png);
+	else ifriendlist = new GuiImageData(friendlist_png);
+	if(new_hbb_png_size) ihbb = new GuiImageData(new_hbb_png);
+	else ihbb = new GuiImageData(hbb_png);
+	if(new_exit_png_size) iexit = new GuiImageData(new_exit_png);
+	else iexit = new GuiImageData(exit_png);
+	if(new_button_over_pcm) btnSoundOver = new GuiSound(new_button_over_pcm,new_button_over_pcm_size, SOUND_PCM);
+	else btnSoundOver = new GuiSound(button_over_pcm, button_over_pcm_size, SOUND_PCM);
 
 
 	
@@ -577,60 +833,60 @@ static int MainScreen(){
 	trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A, PAD_BUTTON_A);
 	
 	
-	GuiImage chat(&ichat);
+	GuiImage chat(ichat);
 	GuiButton bchat(chat.GetWidth(),chat.GetHeight());
 	bchat.SetPosition(100,200);
 	bchat.SetImage(&chat);
-	bchat.SetSoundOver(&btnSoundOver);
+	bchat.SetSoundOver(btnSoundOver);
 //	bchat.SetTrigger(&trigA);
 	bchat.SetEffectGrow();
 	
-	GuiImage email(&iemail);
+	GuiImage email(iemail);
 	GuiButton bemail(email.GetWidth(),email.GetHeight());
 	bemail.SetPosition(150,90);
 	bemail.SetImage(&email);
-	bemail.SetSoundOver(&btnSoundOver);
+	bemail.SetSoundOver(btnSoundOver);
 	bemail.SetTrigger(&trigA);
 	bemail.SetEffectGrow();
 	
-	GuiImage news(&inews);
+	GuiImage news(inews);
 	GuiButton bnews(news.GetWidth(),news.GetHeight());
 	bnews.SetPosition(150,310);
 	bnews.SetImage(&news);
-	bnews.SetSoundOver(&btnSoundOver);
+	bnews.SetSoundOver(btnSoundOver);
 //	bnews.SetTrigger(&trigA);
 	bnews.SetEffectGrow();
 	
 	
-	GuiImage network(&inetwork);
+	GuiImage network(inetwork);
 	GuiButton bnetwork(network.GetWidth(),network.GetHeight());
 	bnetwork.SetPosition(565,95);
 	bnetwork.SetImage(&network);
-	bnetwork.SetSoundOver(&btnSoundOver);
+	bnetwork.SetSoundOver(btnSoundOver);
 //	bnetwork.SetTrigger(&trigA);
 	bnetwork.SetEffectGrow();
 	
-	GuiImage refresh(&irefresh);
+	GuiImage refresh(irefresh);
 	GuiButton brefresh(refresh.GetWidth(),refresh.GetHeight());
 	brefresh.SetPosition(565,155);
 	brefresh.SetImage(&refresh);
-	brefresh.SetSoundOver(&btnSoundOver);
+	brefresh.SetSoundOver(btnSoundOver);
 //	brefresh.SetTrigger(&trigA);
 	brefresh.SetEffectGrow();
 	
-	GuiImage down(&idown);
+	GuiImage down(idown);
 	GuiButton bdown(down.GetWidth(),down.GetHeight());
 	bdown.SetPosition(565,215);
 	bdown.SetImage(&down);
-	bdown.SetSoundOver(&btnSoundOver);
+	bdown.SetSoundOver(btnSoundOver);
 //	bdown.SetTrigger(&trigA);
 	bdown.SetEffectGrow();
 	
-	GuiImage folder(&ifolder);
+	GuiImage folder(ifolder);
 	GuiButton bfolder(folder.GetWidth(),folder.GetHeight());
 	bfolder.SetPosition(565,270);
 	bfolder.SetImage(&folder);
-	bfolder.SetSoundOver(&btnSoundOver);
+	bfolder.SetSoundOver(btnSoundOver);
 //	bfolder.SetTrigger(&trigA);
 	bfolder.SetEffectGrow();
 	
@@ -638,36 +894,36 @@ static int MainScreen(){
 	GuiText netstatus("Status",22,(GXColor){255,255,255,255});
 	netstatus.SetPosition(0,200);
 	
-	GuiImage friendlist(&ifriendlist);
+	GuiImage friendlist(ifriendlist);
 	GuiButton bfriendlist(friendlist.GetWidth(),friendlist.GetHeight());
 	bfriendlist.SetPosition(300,380);
 	bfriendlist.SetImage(&friendlist);
-	bfriendlist.SetSoundOver(&btnSoundOver);
+	bfriendlist.SetSoundOver(btnSoundOver);
 	bfriendlist.SetTrigger(&trigA);
 	bfriendlist.SetEffectGrow();
 	
-	GuiImage hbb(&ihbb);
+	GuiImage hbb(ihbb);
 	GuiButton bhbb(hbb.GetWidth(),hbb.GetHeight());
 	bhbb.SetPosition(300,60);
 	bhbb.SetImage(&hbb);
-	bhbb.SetSoundOver(&btnSoundOver);
+	bhbb.SetSoundOver(btnSoundOver);
 //	bhbb.SetTrigger(&trigA);
 	bhbb.SetEffectGrow();
 	
-	GuiImage exit(&iexit);
+	GuiImage exit(iexit);
 	GuiButton bexit(exit.GetWidth(),exit.GetHeight());
 	bexit.SetPosition(565,380);
 	bexit.SetImage(&exit);
-	bexit.SetSoundOver(&btnSoundOver);
+	bexit.SetSoundOver(btnSoundOver);
 	bexit.SetTrigger(&trigA);
 	bexit.SetEffectGrow();
 	
 	
-/*	GuiImage addfriend(&iaddfriend);
+/*	GuiImage addfriend(iaddfriend);
  *	GuiButton baddfriend(addfriend.GetWidth(),addfriend.GetHeight());
  *	baddfriend.SetPosition(200,200);
  *	baddfriend.SetImage(&addfriend);
- *	baddfriend.SetSoundOver(&btnSoundOver);
+ *	baddfriend.SetSoundOver(btnSoundOver);
  *	baddfriend.SetTrigger(&trigA);
  *	baddfriend.SetEffectGrow();
  */
