@@ -273,44 +273,197 @@ int loadtheme(char *file){
 		new_exit_png_size = info->uncompressed_size;
 		unzReadCurrentFile(f,new_exit_png,info->uncompressed_size);
 	}
-	if(unzLocateFile(f,"news.png",2) == UNZ_OK){
-		
+	if(unzLocateFile(f,"hbb.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_hbb_png = new u8 [info->uncompressed_size];
+		new_hbb_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_hbb_png,info->uncompressed_size);
 	}
-	if(unzLocateFile(f,"email.png",2) == UNZ_OK){
-		
+	if(unzLocateFile(f,"email.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_email_png = new u8 [info->uncompressed_size];
+		new_email_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_email_png,info->uncompressed_size);
 	}
-	if(unzLocateFile(f,"chat.png",2) == UNZ_OK){
-		
+	if(unzLocateFile(f,"chat.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_chat_png = new u8 [info->uncompressed_size];
+		new_chat_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_chat_png,info->uncompressed_size);
 	}
-	if(unzLocateFile(f,"friendlist.png",2) == UNZ_OK){
-		
+	if(unzLocateFile(f,"friendlist.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_friendlist_png = new u8 [info->uncompressed_size];
+		new_friendlist_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_friendlist_png,info->uncompressed_size);
 	}
-	if(unzLocateFile(f,"background.png",2) == UNZ_OK){
-		
+	if(unzLocateFile(f,"font.ttf",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_friendlist_png = new u8 [info->uncompressed_size];
+		new_friendlist_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_friendlist_png,info->uncompressed_size);
 	}
-	if(unzLocateFile(f,"sidebar.png",2) == UNZ_OK){
-		
+	if(unzLocateFile(f,"bgmusic.ogg",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_bg_music_ogg = new u8 [info->uncompressed_size];
+		new_bg_music_ogg_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_bg_music_ogg,info->uncompressed_size);
 	}
-	if(unzLocateFile(f,"refresh.png",2) == UNZ_OK){
-		
+	if(unzLocateFile(f,"buttonover.pcm",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_button_over_pcm = new u8 [info->uncompressed_size];
+		new_button_over_pcm_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_button_over_pcm,info->uncompressed_size);
 	}
-	if(unzLocateFile(f,"download.png",2) == UNZ_OK){
-		
+	if(unzLocateFile(f,"buttonclick.pcm",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_button_click_pcm = new u8 [info->uncompressed_size];
+		new_button_click_pcm_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_button_click_pcm,info->uncompressed_size);
 	}
-	if(unzLocateFile(f,"hbb.png",2) == UNZ_OK){
-		
+	if(unzLocateFile(f,"button.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_button_png = new u8 [info->uncompressed_size];
+		new_button_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_button_png,info->uncompressed_size);
 	}
-	if(unzLocateFile(f,"poke.png",2) == UNZ_OK){
-		
+	if(unzLocateFile(f,"buttonover.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_button_over_png = new u8 [info->uncompressed_size];
+		new_button_over_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_button_over_png,info->uncompressed_size);
 	}
-	if(unzLocateFile(f,"logo.png",2) == UNZ_OK){
-		
+	if(unzLocateFile(f,"buttonlarge.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_button_large_png = new u8 [info->uncompressed_size];
+		new_button_large_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_button_large_png,info->uncompressed_size);
 	}
-	if(unzLocateFile(f,"wifi.png",2) == UNZ_OK){
-		
+	if(unzLocateFile(f,"buttonlargeover.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_button_large_over_png = new u8 [info->uncompressed_size];
+		new_button_large_over_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_button_large_over_png,info->uncompressed_size);
 	}
-	if(unzLocateFile(f,"addfriend.png",2) == UNZ_OK){
-		
+	if(unzLocateFile(f,"dialogue.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_dialogue_box_png = new u8 [info->uncompressed_size];
+		new_dialogue_box_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_dialogue_box_png,info->uncompressed_size);
+	}
+	if(unzLocateFile(f,"point1.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_player1_point_png = new u8 [info->uncompressed_size];
+		new_player1_point_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_player1_point_png,info->uncompressed_size);
+	}
+	if(unzLocateFile(f,"point2.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_player2_point_png = new u8 [info->uncompressed_size];
+		new_player2_point_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_player2_point_png,info->uncompressed_size);
+	}
+	if(unzLocateFile(f,"point3.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_player3_point_png = new u8 [info->uncompressed_size];
+		new_player3_point_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_player3_point_png,info->uncompressed_size);
+	}
+	if(unzLocateFile(f,"point4.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_player4_point_png = new u8 [info->uncompressed_size];
+		new_player4_point_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_player4_point_png,info->uncompressed_size);
+	}
+	if(unzLocateFile(f,"grab1.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_player1_grab_png = new u8 [info->uncompressed_size];
+		new_player1_grab_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_player1_grab_png,info->uncompressed_size);
+	}
+	if(unzLocateFile(f,"grab2.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_player2_grab_png = new u8 [info->uncompressed_size];
+		new_player2_grab_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_player2_grab_png,info->uncompressed_size);
+	}
+	if(unzLocateFile(f,"grab3.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_player3_grab_png = new u8 [info->uncompressed_size];
+		new_player3_grab_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_player3_grab_png,info->uncompressed_size);
+	}
+	if(unzLocateFile(f,"grab4.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_player4_grab_png = new u8 [info->uncompressed_size];
+		new_player4_grab_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_player4_grab_png,info->uncompressed_size);
+	}
+	if(unzLocateFile(f,"download.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_down_png = new u8 [info->uncompressed_size];
+		new_down_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_down_png,info->uncompressed_size);
+	}
+	if(unzLocateFile(f,"notify.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_notify_png = new u8 [info->uncompressed_size];
+		new_notify_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_notify_png,info->uncompressed_size);
+	}
+	if(unzLocateFile(f,"refresh.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_refresh_png = new u8 [info->uncompressed_size];
+		new_refresh_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_refresh_png,info->uncompressed_size);
+	}
+	if(unzLocateFile(f,"logo.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_wiiconnect_png = new u8 [info->uncompressed_size];
+		new_wiiconnect_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_wiiconnect_png,info->uncompressed_size);
+	}
+	if(unzLocateFile(f,"logoalt.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_wiiconnectblack_png = new u8 [info->uncompressed_size];
+		new_wiiconnectblack_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_wiiconnectblack_png,info->uncompressed_size);
+	}
+	if(unzLocateFile(f,"bg.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_bg_png = new u8 [info->uncompressed_size];
+		new_bg_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_bg_png,info->uncompressed_size);
+	}
+	if(unzLocateFile(f,"news.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_news_png = new u8 [info->uncompressed_size];
+		new_news_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_news_png,info->uncompressed_size);
+	}
+	if(unzLocateFile(f,"folder.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_folder_png = new u8 [info->uncompressed_size];
+		new_folder_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_folder_png,info->uncompressed_size);
+	}
+	if(unzLocateFile(f,"sidebar.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_sidebar_png = new u8 [info->uncompressed_size];
+		new_sidebar_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_sidebar_png,info->uncompressed_size);
+	}
+	if(unzLocateFile(f,"poke.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_poke_png = new u8 [info->uncompressed_size];
+		new_poke_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_poke_png,info->uncompressed_size);
+	}
+	if(unzLocateFile(f,"addfriend.png",2) == UNZ_OK){ //tries to find file, 2 == not case sensitive
+		unzGetCurrentFileInfo(f,info,NULL,NULL,NULL,NULL,NULL,NULL);
+		new_addfriend_png = new u8 [info->uncompressed_size];
+		new_addfriend_png_size = info->uncompressed_size;
+		unzReadCurrentFile(f,new_addfriend_png,info->uncompressed_size);
 	}
 	return 0;
 }
