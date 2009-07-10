@@ -95,7 +95,7 @@ void initall(){
 	strcpy(ssettings.server,"smtp-server.tampabay.rr.com");
 	strcpy(psettings.server,"pop-server.tampabay.rr.com");
 	strcpy(psettings.user,"jsmaster");
-	strcpy(psettings.password,"I hate having to change this every commit");
+	strcpy(psettings.password,"O_O");
 	ssettings.port = 25;
 	psettings.port = 110;
 	eml->clearsettings(SMTP);
@@ -103,7 +103,6 @@ void initall(){
 	eml->setsettings(SMTP,&ssettings);
 	eml->setsettings(POP,&psettings);
 	ms = new emsg;
-	
 	fontSystem = new FreeTypeGX();
 	fontSystem->loadFont(font_ttf, font_ttf_size, 0);
 	fontSystem->setCompatibilityMode(FTGX_COMPATIBILITY_DEFAULT_TEVOP_GX_PASSCLR | FTGX_COMPATIBILITY_DEFAULT_VTXDESC_GX_NONE);
@@ -133,6 +132,7 @@ int main(int argc, char **argv) {
 	strcpy(ms->message,"How are you?");
 	
 	eml->sendemail(ms);
+	eml->sendemail(ms);
 	
 	printf("done!\n");
 	
@@ -141,16 +141,18 @@ int main(int argc, char **argv) {
 	printf("\x1b[7CGetting test email...");
 
 	messlist *mlroot = eml->getnewmail();
+	
+	printf("done!\n");
 	messlist *ml;
 	ml = mlroot;
 	if(ml != 0){
 		printf("%s",ml->body);
-		while(ml->next != 0){
+		while(ml->next){
 			ml = ml->next;
 			printf("%s",ml->body);
 		}
 	}
-	printf("done!\n\nPress HOME to exit...");
+	printf("\n\nPress HOME to exit...");
 	while(1){
 		WPAD_ScanPads();
 		u32 pressed = WPAD_ButtonsDown(0);

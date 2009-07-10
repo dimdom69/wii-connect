@@ -17,6 +17,7 @@
 #include <fstream>
 #include <debug.h>
 #include <iostream>
+#include <time.h>
 
 
 #include "libwiigui/gui.h"
@@ -216,6 +217,7 @@ static GuiImage * bg = NULL;
 static GuiImage * sidebar = NULL;
 static GuiImage * wiiconnect = NULL;
 static GuiSound * bgMusic = NULL;
+static GuiText * guiclock = NULL;
 static GuiWindow * mainWindow = NULL;
 static GuiButton * bmainWindow = NULL;
 static lwp_t guithread = LWP_THREAD_NULL;
@@ -223,7 +225,9 @@ static bool guiHalt = true;
 extern _netaction netaction;
 struct emsg *ms;
 extern email *eml;
-
+static time_t epochtime;
+static struct tm *guitime;
+static char * gtime = NULL;
 
 /****************************************************************************
  * ResumeGui
@@ -1133,6 +1137,10 @@ static int MainScreen(){
 void MainMenu(int menu)
 {
 	int currentMenu = menu;
+	epochtime = time(NULL);
+	guitime = localtime(&epochtime);
+	gtime = new char [20];
+	sprintf(gtime,"%d : %d : %d",guitime->tm_hour,guitime->tm_min,guitime->tm_sec);
 
 	#ifdef HW_RVL
 	pointer[0] = new GuiImageData(player1_point_png);
@@ -1148,6 +1156,9 @@ void MainMenu(int menu)
 	mainWindow = new GuiWindow(screenwidth, screenheight);
 	bmainWindow = new GuiButton(screenwidth, screenheight);
 	bmainWindow->SetTrigger(&trigHome);
+	
+	guiclock = new GuiText(gtime);
+	guiclock->SetPosition(400,440);
 
 	ibg = new GuiImageData(bg_png);
 	isidebar = new GuiImageData(sidebar_png);
@@ -1166,6 +1177,7 @@ void MainMenu(int menu)
 	mainWindow->Append(sidebar);
 	mainWindow->Append(wiiconnect);
 	mainWindow->Append(bmainWindow);
+	mainWindow->Append(guiclock);
 
 	GuiTrigger trigA;
 	trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A, PAD_BUTTON_A);
@@ -1206,6 +1218,8 @@ void MainMenu(int menu)
 	delete sidebar;
 	delete bg;
 	delete mainWindow;
+	delete bmainWindow;
+	delete guiclock;
 
 	delete pointer[0];
 	delete pointer[1];

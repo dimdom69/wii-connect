@@ -83,43 +83,20 @@ void email::sendemail(struct emsg *mess){
 }
 
 void email::parsemessage(messlist *ml,char *mess){
+	bl = 0;
 	numlines = 0;
-	messline = mess;
 	if(strncmp(messline,"+OK",strlen("+OK"))){
 		//error
 	}
 	for(int x = 0;x<(int)strlen(mess);x++){
-		if(mess[x] == '\n'){
-			numlines++;
-			x++;
-			messline += x;
-			if(!strncmp(messline,POP_TO,strlen(POP_TO))){
-				ml->to = new char [strchr(messline,'\r')-messline];
-				strncpy(ml->to,messline,strchr(messline,'\r')-messline);
-			}
-			else if(!strncmp(messline,POP_FROM,strlen(POP_FROM))){
-				ml->from = new char [strchr(messline,'\r')-messline];
-				strncpy(ml->from,messline,strchr(messline,'\r')-messline);
-			}
-			else if(!strncmp(messline,POP_SUBJECT,strlen(POP_SUBJECT))){
-				ml->subject = new char [strchr(messline,'\r')-messline];
-				strncpy(ml->subject,messline,strchr(messline,'\r')-messline);
-			}
-			else if(!strncmp(messline,POP_DATE,strlen(POP_DATE))){
-				ml->date = new char [strchr(messline,'\r')-messline];
-				strncpy(ml->date,messline,strchr(messline,'\r')-messline);
-			}
-			else if(!strncmp(messline,POP_CC,strlen(POP_CC))){
-				ml->cc = new char [strchr(messline,'\r')-messline];
-				strncpy(ml->cc,messline,strchr(messline,'\r')-messline);
-			}
-			else if(!strncmp(messline-2,POP_BODY,strlen(POP_BODY))){
-				x+=2;
-				messline+=2;
-				ml->body = new char [strchr(messline,'\r')-messline];
-				strncpy(ml->body,messline,strchr(messline,'\r')-messline);
-			}
+		if((messline = strstr(mess,"\r\n\r\n"))){
+			messline += 4;
+			bl = strchr(messline,'\r')-messline;
+			ml->body = new char [bl+1];
+			ml->body[bl] = '\0';
+			strncpy(ml->body,messline,bl);
 		}
+		
 	}
 }
 
@@ -179,21 +156,20 @@ messlist *email::getnewmail(){
 	newmail = newmailroot;
 	newmail->next = 0;
 	for(int x = 0;x<rendered;x++){
-		mailbuffer = new char [messsize[x]];
+		mailbuffer = new char [messsize[x]+30];
 		sprintf(line,"RETR %d\r\n",x+1);
 		writetosocket(line);
-		mailbuffer = read(messsize[x]+1);
+		mailbuffer = read(messsize[x]+30);
 		response = read(200);
 		
-		//parsemessage(newmail,mailbuffer);
-
-		newmail->body = new char [messsize[x]];
-		strncpy(newmail->body,mailbuffer,messsize[x]);
-
+		parsemessage(newmail,mailbuffer);
 		
-		newmail->next = new messlist;
-		newmail = newmail->next;
-		newmail->next = 0;
+		if(x != rendered-1){
+			newmail->next = new messlist;
+			newmail = newmail->next;
+			newmail->next = 0;
+		}
+		
 	}
 	for(int y = 0;y<rendered;y++){
 		sprintf(line,"DELE %d\r\n",y+1);
