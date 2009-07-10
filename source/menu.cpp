@@ -228,6 +228,7 @@ extern email *eml;
 static time_t epochtime;
 static struct tm *guitime;
 static char * gtime = NULL;
+mailsettings *ssettings;
 
 /****************************************************************************
  * ResumeGui
@@ -832,6 +833,9 @@ static int emailmenu(){
 	sprintf(options.name[i++], "To");
 	sprintf(options.name[i++], "Subject");
 	sprintf(options.name[i++], "Message");
+	sprintf(options.name[i++], "Server");
+	sprintf(options.name[i++], "Username");
+	sprintf(options.name[i++], "Password");
 	options.length = i;
 
 	GuiText titleTxt("Email - Send Message", 28, (GXColor){255, 255, 255, 255});
@@ -896,23 +900,38 @@ static int emailmenu(){
 		snprintf (options.value[1], 50, "%s", ms->to);
 		snprintf (options.value[2], 50, "%s", ms->subject);
 		snprintf (options.value[3], 200, "%s", ms->message);
+		snprintf (options.value[4], 50, "%s", ssettings->server);
+		snprintf (options.value[5], 50, "%s", ssettings->user);
+		snprintf (options.value[6], 50, "%s", ssettings->password);
 
 		switch (ret)
 		{
 			case 0:
-				OnScreenKeyboard(ms->from,50);
+				OnScreenKeyboard(ms->from,49);
 				break;
 
 			case 1:
-				OnScreenKeyboard(ms->to,50);
+				OnScreenKeyboard(ms->to,49);
 				break;
 
 			case 2:
-				OnScreenKeyboard(ms->subject,50);
+				OnScreenKeyboard(ms->subject,49);
 				break;
 
 			case 3:
-				OnScreenKeyboard(ms->message,200);
+				OnScreenKeyboard(ms->message,199);
+				break;
+
+			case 4:
+				OnScreenKeyboard(ssettings->server,49);
+				break;
+
+			case 5:
+				OnScreenKeyboard(ssettings->user,49);
+				break;
+
+			case 6:
+				OnScreenKeyboard(ssettings->password,49);
 				break;
 		}
 
@@ -921,11 +940,9 @@ static int emailmenu(){
 			menu = MAIN_SCREEN;
 		}
 		if(sendBtn.GetState() == STATE_CLICKED){
-			HaltGui();
-			printf("Sending...");
+			eml->setsettings(SMTP,ssettings);
 			eml->sendemail(ms);
-			printf("Done!");
-			ResumeGui();
+			menu = MENU_EMAIL;
 		}
 	}
 	HaltGui();

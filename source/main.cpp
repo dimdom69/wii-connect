@@ -32,7 +32,7 @@ email *eml;
 http *inet;
 _netaction netaction;
 static lwp_t net_t = LWP_THREAD_NULL;
-
+extern mailsettings *ssettings;
 
 void *networkthread(void *args){
 	while(1){
@@ -89,25 +89,22 @@ void initall(){
 	printf("Init Wifi...");
 	eml = new email();
 	printf("success!\n");
-	
-	mailsettings ssettings;
-	mailsettings psettings;
-	strcpy(ssettings.server,"smtp-server.tampabay.rr.com");
-	strcpy(psettings.server,"pop-server.tampabay.rr.com");
-	strcpy(psettings.user,"jsmaster");
-	strcpy(psettings.password,"O_O");
-	ssettings.port = 25;
-	psettings.port = 110;
 	eml->clearsettings(SMTP);
-	eml->clearsettings(POP);
-	eml->setsettings(SMTP,&ssettings);
-	eml->setsettings(POP,&psettings);
+	ssettings = new mailsettings;
+	ssettings->port = 25;
+	eml->clearsettings(SMTP);
+	eml->getsettings(SMTP,ssettings);
+	eml->setsettings(SMTP,ssettings);
 	ms = new emsg;
+	ms->to[0] = '\0';
+	ms->from[0] = '\0';
+	ms->subject[0] = '\0';
+	ms->message[0] = '\0';
 	fontSystem = new FreeTypeGX();
 	fontSystem->loadFont(font_ttf, font_ttf_size, 0);
 	fontSystem->setCompatibilityMode(FTGX_COMPATIBILITY_DEFAULT_TEVOP_GX_PASSCLR | FTGX_COMPATIBILITY_DEFAULT_VTXDESC_GX_NONE);
 
-//	InitGUIThreads();
+	InitGUIThreads();
 //	LWP_CreateThread (&net_t, networkthread, NULL, NULL, 0, 40);
 }
 
@@ -124,19 +121,7 @@ int main(int argc, char **argv) {
 	
 	initall();
 	
-	printf("\x1b[7CSending test email...");
-	
-	strcpy(ms->from,"jsmaster@tampabay.rr.com");
-	strcpy(ms->to,"jsmaster@tampabay.rr.com");
-	strcpy(ms->subject,"Hello!");
-	strcpy(ms->message,"How are you?");
-	
-	eml->sendemail(ms);
-	eml->sendemail(ms);
-	
-	printf("done!\n");
-	
-//	MainMenu(MENU_EMAIL);	
+	MainMenu(MENU_EMAIL);	
 
 	printf("\x1b[7CGetting test email...");
 
