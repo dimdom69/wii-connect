@@ -229,6 +229,7 @@ static time_t epochtime;
 static struct tm *guitime;
 static char * gtime = NULL;
 mailsettings *ssettings;
+static int emailmenu();
 
 /****************************************************************************
  * ResumeGui
@@ -824,7 +825,7 @@ static int friendmenu(){
 	return menu;
 }
 
-static int emailmenu(){
+static int sendemailmenu(){
 	int menu = MENU_NONE;
 	int ret;
 	int i = 0;
@@ -834,8 +835,6 @@ static int emailmenu(){
 	sprintf(options.name[i++], "Subject");
 	sprintf(options.name[i++], "Message");
 	sprintf(options.name[i++], "Server");
-	sprintf(options.name[i++], "Username");
-	sprintf(options.name[i++], "Password");
 	options.length = i;
 
 	GuiText titleTxt("Email - Send Message", 28, (GXColor){255, 255, 255, 255});
@@ -885,6 +884,7 @@ static int emailmenu(){
 	GuiWindow w(screenwidth, screenheight);
 	w.Append(&backBtn);
 	w.Append(&sendBtn);
+	w.SetEffect(EFFECT_SLIDE_IN | EFFECT_SLIDE_OUT,4,110);
 	mainWindow->Append(&optionBrowser);
 	mainWindow->Append(&w);
 	mainWindow->Append(&titleTxt);
@@ -900,38 +900,36 @@ static int emailmenu(){
 		snprintf (options.value[1], 50, "%s", ms->to);
 		snprintf (options.value[2], 50, "%s", ms->subject);
 		snprintf (options.value[3], 200, "%s", ms->message);
-		snprintf (options.value[4], 50, "%s", ssettings->server);
-		snprintf (options.value[5], 50, "%s", ssettings->user);
-		snprintf (options.value[6], 50, "%s", ssettings->password);
+		snprintf (options.value[4], 200, "%s", ssettings->server);
 
 		switch (ret)
 		{
 			case 0:
-				OnScreenKeyboard(ms->from,49);
+				OnScreenKeyboard(ms->from,50);
 				break;
 
 			case 1:
-				OnScreenKeyboard(ms->to,49);
+				OnScreenKeyboard(ms->to,50);
 				break;
 
 			case 2:
-				OnScreenKeyboard(ms->subject,49);
+				OnScreenKeyboard(ms->subject,50);
 				break;
 
 			case 3:
-				OnScreenKeyboard(ms->message,199);
+				OnScreenKeyboard(ms->message,200);
 				break;
 
 			case 4:
-				OnScreenKeyboard(ssettings->server,49);
+				OnScreenKeyboard(ssettings->server,50);
 				break;
 
 			case 5:
-				OnScreenKeyboard(ssettings->user,49);
+				OnScreenKeyboard(ssettings->user,50);
 				break;
 
 			case 6:
-				OnScreenKeyboard(ssettings->password,49);
+				OnScreenKeyboard(ssettings->password,50);
 				break;
 		}
 
@@ -942,7 +940,7 @@ static int emailmenu(){
 		if(sendBtn.GetState() == STATE_CLICKED){
 			eml->setsettings(SMTP,ssettings);
 			eml->sendemail(ms);
-			menu = MENU_EMAIL;
+			menu = MAIN_SCREEN;
 		}
 	}
 	HaltGui();
@@ -951,6 +949,20 @@ static int emailmenu(){
 	mainWindow->Remove(&titleTxt);
 	return menu;
 }
+
+static int checkemailmenu(){
+	int menu = MENU_NONE;
+	
+	return menu;
+}
+
+static int emailsettingsmenu(){
+	int menu = MENU_NONE;
+	
+	return menu;
+}
+
+
 
 /****************************************************************************
  * MenuSettings
@@ -1137,16 +1149,123 @@ static int MainScreen(){
 		if(bemail.GetState() == STATE_CLICKED){
 			menu = emailmenu();
 		}
-//		if(baddfriend.GetState() == STATE_CLICKED)
-//		{
-//			OnScreenKeyboard("",16);
-//		}
 	}
 
 	HaltGui();
 	mainWindow->Remove(&w);
 	return menu;
 }
+
+
+
+static int emailmenu(){
+	int menu = MENU_NONE;
+	
+	GuiImageData *btnOutline;
+	GuiImageData *btnOutlineOver;
+	GuiSound *btnSoundOver;
+	
+	GuiText titleTxt("Email", 28, (GXColor){255, 255, 255, 255});
+	titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
+	titleTxt.SetPosition(50,50);
+
+	if(new_button_over_pcm_size) btnSoundOver = new GuiSound(new_button_over_pcm,new_button_over_pcm_size, SOUND_PCM);
+	else btnSoundOver = new GuiSound(button_over_pcm, button_over_pcm_size, SOUND_PCM);
+	if(new_button_png_size) btnOutline = new GuiImageData(new_button_png);
+	else btnOutline = new GuiImageData(button_png);
+	if(new_button_over_png_size) btnOutlineOver = new GuiImageData(new_button_over_png);
+	else btnOutlineOver = new GuiImageData(button_over_png);
+	
+	GuiTrigger trigA;
+	trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A, PAD_BUTTON_A);
+
+	GuiText checkBtnTxt("Check E-mail", 22, (GXColor){0, 0, 0, 255});
+	GuiImage checkBtnImg(btnOutline);
+	GuiImage checkBtnImgOver(btnOutlineOver);
+	GuiButton checkBtn(btnOutline->GetWidth(), btnOutline->GetHeight());
+	checkBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+	checkBtn.SetPosition(200, -370);
+	checkBtn.SetLabel(&checkBtnTxt);
+	checkBtn.SetImage(&checkBtnImg);
+	checkBtn.SetImageOver(&checkBtnImgOver);
+	checkBtn.SetSoundOver(btnSoundOver);
+	checkBtn.SetTrigger(&trigA);
+	checkBtn.SetEffectGrow();
+
+	GuiText createBtnTxt("Send E-mail", 22, (GXColor){0, 0, 0, 255});
+	GuiImage createBtnImg(btnOutline);
+	GuiImage createBtnImgOver(btnOutlineOver);
+	GuiButton createBtn(btnOutline->GetWidth(), btnOutline->GetHeight());
+	createBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+	createBtn.SetPosition(200, -300);
+	createBtn.SetLabel(&createBtnTxt);
+	createBtn.SetImage(&createBtnImg);
+	createBtn.SetImageOver(&createBtnImgOver);
+	createBtn.SetSoundOver(btnSoundOver);
+	createBtn.SetTrigger(&trigA);
+	createBtn.SetEffectGrow();
+	
+	GuiText settingsBtnTxt("Settings", 22, (GXColor){0, 0, 0, 255});
+	GuiImage settingsBtnImg(btnOutline);
+	GuiImage settingsBtnImgOver(btnOutlineOver);
+	GuiButton settingsBtn(btnOutline->GetWidth(), btnOutline->GetHeight());
+	settingsBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+	settingsBtn.SetPosition(200, -230);
+	settingsBtn.SetLabel(&settingsBtnTxt);
+	settingsBtn.SetImage(&settingsBtnImg);
+	settingsBtn.SetImageOver(&settingsBtnImgOver);
+	settingsBtn.SetSoundOver(btnSoundOver);
+	settingsBtn.SetTrigger(&trigA);
+	settingsBtn.SetEffectGrow();
+	
+
+	GuiText backBtnTxt("Go Back", 22, (GXColor){0, 0, 0, 255});
+	GuiImage backBtnImg(btnOutline);
+	GuiImage backBtnImgOver(btnOutlineOver);
+	GuiButton backBtn(btnOutline->GetWidth(), btnOutline->GetHeight());
+	backBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+	backBtn.SetPosition(100, -35);
+	backBtn.SetLabel(&backBtnTxt);
+	backBtn.SetImage(&backBtnImg);
+	backBtn.SetImageOver(&backBtnImgOver);
+	backBtn.SetSoundOver(btnSoundOver);
+	backBtn.SetTrigger(&trigA);
+	backBtn.SetEffectGrow();
+
+
+	HaltGui();
+	GuiWindow w(screenwidth,screenheight);	
+	w.Append(&checkBtn);
+	w.Append(&createBtn);
+	w.Append(&settingsBtn);
+	w.Append(&backBtn);
+	mainWindow->Append(&w);
+	ResumeGui();
+	
+	while(menu == MENU_NONE)
+	{
+		VIDEO_WaitVSync ();
+		if(checkBtn.GetState() == STATE_CLICKED)
+		{
+			menu = MENU_CHECK_EMAIL;
+		}
+		if(createBtn.GetState() == STATE_CLICKED){
+			menu = MENU_SEND_EMAIL;
+		}
+		if(settingsBtn.GetState() == STATE_CLICKED){
+			menu = MENU_EMAIL_SETTINGS;
+		}
+		if(backBtn.GetState() == STATE_CLICKED){
+			menu = MAIN_SCREEN;
+		}
+	}
+
+	HaltGui();
+	mainWindow->Remove(&w);
+	return menu;
+
+}
+
 
 /****************************************************************************
  * MainMenu
@@ -1215,8 +1334,17 @@ void MainMenu(int menu)
 			case MENU_FRIEND:
 				currentMenu = friendmenu();
 				break;
+			case MENU_SEND_EMAIL:
+				currentMenu = sendemailmenu();
+				break;
 			case MENU_EMAIL:
 				currentMenu = emailmenu();
+				break;
+			case MENU_EMAIL_SETTINGS:
+				currentMenu = emailsettingsmenu();
+				break;
+			case MENU_CHECK_EMAIL:
+				currentMenu = checkemailmenu();
 				break;
 			default: // unrecognized menu
 				currentMenu = MainScreen();
