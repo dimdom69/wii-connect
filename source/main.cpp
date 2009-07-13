@@ -91,15 +91,30 @@ void initall(){
 	printf("success!\n");
 	eml->clearsettings(SMTP);
 	ssettings = new mailsettings;
+	ssettings->server = new char [50+1];
+	ssettings->user = new char [50];
+	ssettings->password = new char [50];
+	strcpy(ssettings->server,"smtp-server.tampabay.rr.com");
+	ssettings->user[0] = '\0';
+	ssettings->password[0] = '\0';
+//	strcpy(ssettings->server,"smtp-server.tampabay.rr.com");
 	ssettings->port = 25;
-	eml->clearsettings(SMTP);
-	eml->getsettings(SMTP,ssettings);
 	eml->setsettings(SMTP,ssettings);
+//	eml->clearsettings(SMTP);
+//	eml->setsettings(SMTP,ssettings);
 	ms = new emsg;
+	ms->to = new char [50];
+	ms->from = new char [50];
+	ms->subject = new char [50];
+	ms->message = new char [200];
 	ms->to[0] = '\0';
 	ms->from[0] = '\0';
-	ms->subject[0] = '\0';
 	ms->message[0] = '\0';
+	ms->subject[0] = '\0';
+//	strcpy(ms->to,"jsmaster@tampabay.rr.com");
+//	strcpy(ms->from,"jsmaster@tampabay.rr.com");
+//	strcpy(ms->subject,"HEY");
+//	strcpy(ms->message,"hola!");
 	fontSystem = new FreeTypeGX();
 	fontSystem->loadFont(font_ttf, font_ttf_size, 0);
 	fontSystem->setCompatibilityMode(FTGX_COMPATIBILITY_DEFAULT_TEVOP_GX_PASSCLR | FTGX_COMPATIBILITY_DEFAULT_VTXDESC_GX_NONE);
@@ -123,7 +138,7 @@ int main(int argc, char **argv) {
 	
 	MainMenu(MENU_EMAIL);	
 
-	printf("\x1b[7CGetting test email...");
+	/*printf("\x1b[7CGetting test email...");
 
 	messlist *mlroot = eml->getnewmail();
 	
@@ -146,5 +161,5 @@ int main(int argc, char **argv) {
 			exit(0);
 		}
 	}
-	exit(0);
+	exit(0);*/
 }

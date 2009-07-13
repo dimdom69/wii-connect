@@ -38,10 +38,10 @@ using namespace std;
 
 
 typedef struct mailsettings_s{
-	char server[50];
+	char *server;
 	int port;
-	char user[50];
-	char password[50];
+	char *user;
+	char *password;
 }mailsettings;
 typedef struct messlist_s{
 	char *subject;
@@ -59,10 +59,10 @@ typedef struct messlist_s{
 }messlist;
 
 struct emsg{
-	char from[50];
-	char to[50];
-	char subject[50];
-	char message[200];	
+	char *from;
+	char *to;
+	char *subject;
+	char *message;	
 };	
 
 typedef struct _messdata{
