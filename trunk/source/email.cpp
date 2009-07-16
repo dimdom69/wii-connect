@@ -96,6 +96,13 @@ void email::parsemessage(messlist *ml,char *mess){
 			ml->body[bl] = '\0';
 			strncpy(ml->body,messline,bl);
 		}
+		if((messline = strstr(mess,"Subject:"))){
+			messline += strlen("Subject:");
+			bl = strchr(messline,'\r')-messline;
+			ml->subject = new char [bl+1];
+			ml->subject[bl] = '\0';
+			strncpy(ml->subject,messline,bl);
+		}
 		
 	}
 }
@@ -171,11 +178,11 @@ messlist *email::getnewmail(){
 		}
 		
 	}
-	for(int y = 0;y<rendered;y++){
-		sprintf(line,"DELE %d\r\n",y+1);
-		writetosocket(line);
-		response = read(200);
-	}
+	//for(int y = 0;y<rendered;y++){
+	//	sprintf(line,"DELE %d\r\n",y+1);
+	//	writetosocket(line);
+	//	response = read(200);
+	//}
 	writetosocket("QUIT\r\n");
 	response = read(200);
 	return newmailroot;

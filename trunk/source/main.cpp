@@ -33,6 +33,7 @@ http *inet;
 _netaction netaction;
 static lwp_t net_t = LWP_THREAD_NULL;
 extern mailsettings *ssettings;
+extern mailsettings *psettings;
 
 void *networkthread(void *args){
 	while(1){
@@ -89,32 +90,45 @@ void initall(){
 	printf("Init Wifi...");
 	eml = new email();
 	printf("success!\n");
-	eml->clearsettings(SMTP);
+
 	ssettings = new mailsettings;
-	ssettings->server = new char [50+1];
+	ssettings->server = new char [50];
 	ssettings->user = new char [50];
 	ssettings->password = new char [50];
-	strcpy(ssettings->server,"smtp-server.tampabay.rr.com");
-	ssettings->user[0] = '\0';
-	ssettings->password[0] = '\0';
+
+	psettings = new mailsettings;
+	psettings->server = new char [50];
+	psettings->user = new char [50];
+	psettings->password = new char [50];
+	
+	memset(psettings->server,0,50);
+	memset(psettings->user,0,50);
+	memset(psettings->password,0,50);
+	
+	memset(ssettings->server,0,50);
+	memset(ssettings->user,0,50);
+	memset(ssettings->password,0,50);
+
 //	strcpy(ssettings->server,"smtp-server.tampabay.rr.com");
 	ssettings->port = 25;
+	psettings->port = 110;
+	
+
 	eml->setsettings(SMTP,ssettings);
-//	eml->clearsettings(SMTP);
-//	eml->setsettings(SMTP,ssettings);
+	eml->setsettings(POP,psettings);
+
 	ms = new emsg;
 	ms->to = new char [50];
 	ms->from = new char [50];
 	ms->subject = new char [50];
 	ms->message = new char [200];
-	ms->to[0] = '\0';
-	ms->from[0] = '\0';
-	ms->message[0] = '\0';
-	ms->subject[0] = '\0';
-//	strcpy(ms->to,"jsmaster@tampabay.rr.com");
-//	strcpy(ms->from,"jsmaster@tampabay.rr.com");
-//	strcpy(ms->subject,"HEY");
-//	strcpy(ms->message,"hola!");
+
+	memset(ms->to,0,50);
+	memset(ms->from,0,50);
+	memset(ms->subject,0,50);
+	memset(ms->message,0,200);
+
+
 	fontSystem = new FreeTypeGX();
 	fontSystem->loadFont(font_ttf, font_ttf_size, 0);
 	fontSystem->setCompatibilityMode(FTGX_COMPATIBILITY_DEFAULT_TEVOP_GX_PASSCLR | FTGX_COMPATIBILITY_DEFAULT_VTXDESC_GX_NONE);

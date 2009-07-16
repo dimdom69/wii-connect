@@ -229,6 +229,7 @@ static time_t epochtime;
 static struct tm *guitime;
 static char * gtime = NULL;
 mailsettings *ssettings;
+mailsettings *psettings;
 static int emailmenu();
 
 /****************************************************************************
@@ -710,7 +711,7 @@ static void OnScreenKeyboard(char * var, u16 maxlen)
 
 	if(save)
 	{
-		snprintf(var, maxlen, "%s", keyboard.kbtextstr);
+		snprintf(var,maxlen,"%s",keyboard.kbtextstr);
 	}
 
 	HaltGui();
@@ -825,6 +826,68 @@ static int friendmenu(){
 	return menu;
 }
 
+static void Notification(char *title,char *message){
+
+	GuiWindow notify(448,288);
+	notify.SetAlignment(ALIGN_CENTRE, ALIGN_MIDDLE);
+	notify.SetPosition(0, -10);
+	GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
+	GuiImageData btnOutline(button_png);
+	GuiImageData btnOutlineOver(button_over_png);
+	GuiTrigger trigA;
+	trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A, PAD_BUTTON_A);
+
+	GuiImageData dialogBox(dialogue_box_png);
+	GuiImage dialogBoxImg(&dialogBox);
+
+	GuiText titleTxt(title, 26, (GXColor){0, 0, 0, 255});
+	titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+	titleTxt.SetPosition(0,40);
+	GuiText msgTxt(message, 22, (GXColor){0, 0, 0, 255});
+	msgTxt.SetAlignment(ALIGN_CENTRE, ALIGN_MIDDLE);
+	msgTxt.SetPosition(0,-20);
+	msgTxt.SetMaxWidth(430);
+
+	GuiText btn1Txt("Cancel", 22, (GXColor){0, 0, 0, 255});
+	GuiImage btn1Img(&btnOutline);
+	GuiImage btn1ImgOver(&btnOutlineOver);
+	GuiButton btn1(btnOutline.GetWidth(), btnOutline.GetHeight());
+	btn1.SetLabel(&btn1Txt);
+	btn1.SetImage(&btn1Img);
+	btn1.SetImageOver(&btn1ImgOver);
+	btn1.SetSoundOver(&btnSoundOver);
+	btn1.SetTrigger(&trigA);
+	btn1.SetState(STATE_SELECTED);
+	btn1.SetEffectGrow();
+	btn1.SetPosition(20,200);
+	
+	notify.Append(&dialogBoxImg);
+	notify.Append(&titleTxt);
+	notify.Append(&msgTxt);
+	notify.Append(&btn1);
+
+	notify.SetEffect(EFFECT_SLIDE_TOP | EFFECT_SLIDE_IN, 50);
+	HaltGui();
+	mainWindow->SetState(STATE_DISABLED);
+	mainWindow->Append(&notify);
+	mainWindow->ChangeFocus(&notify);
+	ResumeGui();
+
+	eml->sendemail(ms);
+
+	if(btn1.GetState() == STATE_CLICKED)
+	{
+		
+	}
+
+	notify.SetEffect(EFFECT_SLIDE_TOP | EFFECT_SLIDE_OUT, 50);
+	while(notify.GetEffect() > 0) usleep(50);
+	HaltGui();
+	mainWindow->Remove(&notify);
+	mainWindow->SetState(STATE_DEFAULT);
+	ResumeGui();
+}
+
 static int sendemailmenu(){
 	int menu = MENU_NONE;
 	int ret;
@@ -834,7 +897,6 @@ static int sendemailmenu(){
 	sprintf(options.name[i++], "To");
 	sprintf(options.name[i++], "Subject");
 	sprintf(options.name[i++], "Message");
-	sprintf(options.name[i++], "Server");
 	options.length = i;
 
 	GuiText titleTxt("Email - Send Message", 28, (GXColor){255, 255, 255, 255});
@@ -884,7 +946,6 @@ static int sendemailmenu(){
 	GuiWindow w(screenwidth, screenheight);
 	w.Append(&backBtn);
 	w.Append(&sendBtn);
-	w.SetEffect(EFFECT_SLIDE_IN | EFFECT_SLIDE_OUT,4,110);
 	mainWindow->Append(&optionBrowser);
 	mainWindow->Append(&w);
 	mainWindow->Append(&titleTxt);
@@ -900,7 +961,7 @@ static int sendemailmenu(){
 		snprintf (options.value[1], 50, "%s", ms->to);
 		snprintf (options.value[2], 50, "%s", ms->subject);
 		snprintf (options.value[3], 200, "%s", ms->message);
-		snprintf (options.value[4], 200, "%s", ssettings->server);
+//		snprintf (options.value[4], 200, "%s", ssettings->server);
 
 		switch (ret)
 		{
@@ -935,12 +996,11 @@ static int sendemailmenu(){
 
 		if(backBtn.GetState() == STATE_CLICKED)
 		{
-			menu = MAIN_SCREEN;
+			menu = MENU_EMAIL;
 		}
 		if(sendBtn.GetState() == STATE_CLICKED){
-			eml->setsettings(SMTP,ssettings);
-			eml->sendemail(ms);
-			menu = MAIN_SCREEN;
+			Notification("Sending","Sending....");
+			menu = MENU_EMAIL;
 		}
 	}
 	HaltGui();
@@ -952,13 +1012,411 @@ static int sendemailmenu(){
 
 static int checkemailmenu(){
 	int menu = MENU_NONE;
+	int i = 0;
+	int ret;
+	GuiImageData *btnOutline;
+	GuiImageData *btnOutlineOver;
+	GuiSound *btnSoundOver;
+	
+	GuiText titleTxt("Email - Check Email", 28, (GXColor){255, 255, 255, 255});
+	titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
+	titleTxt.SetPosition(50,50);
+
+	if(new_button_over_pcm_size) btnSoundOver = new GuiSound(new_button_over_pcm,new_button_over_pcm_size, SOUND_PCM);
+	else btnSoundOver = new GuiSound(button_over_pcm, button_over_pcm_size, SOUND_PCM);
+	if(new_button_png_size) btnOutline = new GuiImageData(new_button_png);
+	else btnOutline = new GuiImageData(button_png);
+	if(new_button_over_png_size) btnOutlineOver = new GuiImageData(new_button_over_png);
+	else btnOutlineOver = new GuiImageData(button_over_png);
+	
+	GuiTrigger trigA;
+	trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A, PAD_BUTTON_A);
+	
+	
+	OptionList options;
+	
+	messlist *mlroot = eml->getnewmail();
+	messlist *ml;
+	ml = mlroot;
+	if(ml != 0){
+		strncpy(options.value[i], ml->body, 50);
+		strncpy(options.name[i++], ml->subject,50);
+		while(ml->next){
+			ml = ml->next;
+			strncpy(options.value[i], ml->body, 50);
+			strncpy(options.name[i++], ml->subject,50);
+		}
+	}
+	options.length = i;
+	
+	GuiText backBtnTxt("Go Back", 22, (GXColor){0, 0, 0, 255});
+	GuiImage backBtnImg(btnOutline);
+	GuiImage backBtnImgOver(btnOutlineOver);
+	GuiButton backBtn(btnOutline->GetWidth(), btnOutline->GetHeight());
+	backBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+	backBtn.SetPosition(100, -35);
+	backBtn.SetLabel(&backBtnTxt);
+	backBtn.SetImage(&backBtnImg);
+	backBtn.SetImageOver(&backBtnImgOver);
+	backBtn.SetSoundOver(btnSoundOver);
+	backBtn.SetTrigger(&trigA);
+	backBtn.SetEffectGrow();
+	
+	GuiOptionBrowser optionBrowser(552, 248, &options);
+	optionBrowser.SetPosition(0, 108);
+	optionBrowser.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+	optionBrowser.SetCol2Position(185);
+
+	HaltGui();
+	GuiWindow w(screenwidth, screenheight);
+	w.Append(&backBtn);
+	mainWindow->Append(&optionBrowser);
+	mainWindow->Append(&w);
+	mainWindow->Append(&titleTxt);
+	ResumeGui();
+
+	while(menu == MENU_NONE)
+	{
+		VIDEO_WaitVSync ();
+
+		ret = optionBrowser.GetClickedOption();
+
+
+		switch (ret)
+		{
+		}
+
+		if(backBtn.GetState() == STATE_CLICKED)
+		{
+			menu = MENU_EMAIL_SETTINGS;
+		}
+	}
+	HaltGui();
+	mainWindow->Remove(&optionBrowser);
+	mainWindow->Remove(&w);
+	mainWindow->Remove(&titleTxt);
+	
+	
 	
 	return menu;
 }
 
 static int emailsettingsmenu(){
 	int menu = MENU_NONE;
+	GuiImageData *btnOutline;
+	GuiImageData *btnOutlineOver;
+	GuiSound *btnSoundOver;
 	
+	GuiText titleTxt("Email - Settings", 28, (GXColor){255, 255, 255, 255});
+	titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
+	titleTxt.SetPosition(50,50);
+
+	if(new_button_over_pcm_size) btnSoundOver = new GuiSound(new_button_over_pcm,new_button_over_pcm_size, SOUND_PCM);
+	else btnSoundOver = new GuiSound(button_over_pcm, button_over_pcm_size, SOUND_PCM);
+	if(new_button_png_size) btnOutline = new GuiImageData(new_button_png);
+	else btnOutline = new GuiImageData(button_png);
+	if(new_button_over_png_size) btnOutlineOver = new GuiImageData(new_button_over_png);
+	else btnOutlineOver = new GuiImageData(button_over_png);
+	
+	GuiTrigger trigA;
+	trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A, PAD_BUTTON_A);
+
+	GuiText smtpBtnTxt("SMTP Settings", 22, (GXColor){0, 0, 0, 255});
+	GuiImage smtpBtnImg(btnOutline);
+	GuiImage smtpBtnImgOver(btnOutlineOver);
+	GuiButton smtpBtn(btnOutline->GetWidth(), btnOutline->GetHeight());
+	smtpBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+	smtpBtn.SetPosition(200, -370);
+	smtpBtn.SetLabel(&smtpBtnTxt);
+	smtpBtn.SetImage(&smtpBtnImg);
+	smtpBtn.SetImageOver(&smtpBtnImgOver);
+	smtpBtn.SetSoundOver(btnSoundOver);
+	smtpBtn.SetTrigger(&trigA);
+	smtpBtn.SetEffectGrow();
+
+	GuiText popBtnTxt("POP Settings", 22, (GXColor){0, 0, 0, 255});
+	GuiImage popBtnImg(btnOutline);
+	GuiImage popBtnImgOver(btnOutlineOver);
+	GuiButton popBtn(btnOutline->GetWidth(), btnOutline->GetHeight());
+	popBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+	popBtn.SetPosition(200, -300);
+	popBtn.SetLabel(&popBtnTxt);
+	popBtn.SetImage(&popBtnImg);
+	popBtn.SetImageOver(&popBtnImgOver);
+	popBtn.SetSoundOver(btnSoundOver);
+	popBtn.SetTrigger(&trigA);
+	popBtn.SetEffectGrow();
+	
+
+	GuiText backBtnTxt("Go Back", 22, (GXColor){0, 0, 0, 255});
+	GuiImage backBtnImg(btnOutline);
+	GuiImage backBtnImgOver(btnOutlineOver);
+	GuiButton backBtn(btnOutline->GetWidth(), btnOutline->GetHeight());
+	backBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+	backBtn.SetPosition(100, -35);
+	backBtn.SetLabel(&backBtnTxt);
+	backBtn.SetImage(&backBtnImg);
+	backBtn.SetImageOver(&backBtnImgOver);
+	backBtn.SetSoundOver(btnSoundOver);
+	backBtn.SetTrigger(&trigA);
+	backBtn.SetEffectGrow();
+
+
+	HaltGui();
+	GuiWindow w(screenwidth,screenheight);	
+	w.Append(&smtpBtn);
+	w.Append(&popBtn);
+	w.Append(&backBtn);
+	mainWindow->Append(&w);
+	ResumeGui();
+	
+	while(menu == MENU_NONE)
+	{
+		VIDEO_WaitVSync ();
+		if(smtpBtn.GetState() == STATE_CLICKED)
+		{
+			menu = MENU_SMTP_SETTINGS;
+		}
+		if(popBtn.GetState() == STATE_CLICKED){
+			menu = MENU_POP_SETTINGS;
+		}
+		if(backBtn.GetState() == STATE_CLICKED){
+			menu = MENU_EMAIL;
+		}
+	}
+
+	HaltGui();
+	mainWindow->Remove(&w);
+	return menu;
+}
+
+
+static int popemailsettingsmenu(){
+	int menu = MENU_NONE;
+	
+	int ret;
+	int i = 0;
+	char *tmp;
+	tmp = new char [8];
+	strcpy(tmp,"110");
+	OptionList options;
+	sprintf(options.name[i++], "Server");
+	sprintf(options.name[i++], "Port");
+	sprintf(options.name[i++], "Username");
+	sprintf(options.name[i++], "Password");	
+	options.length = i;
+
+	GuiText titleTxt("Email - POP Settings", 28, (GXColor){255, 255, 255, 255});
+	titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
+	titleTxt.SetPosition(50,50);
+
+	GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
+	GuiImageData btnOutline(button_png);
+	GuiImageData btnOutlineOver(button_over_png);
+
+	GuiTrigger trigA;
+	trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A, PAD_BUTTON_A);
+
+	GuiText backBtnTxt("Go Back", 22, (GXColor){0, 0, 0, 255});
+	GuiImage backBtnImg(&btnOutline);
+	GuiImage backBtnImgOver(&btnOutlineOver);
+	GuiButton backBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+	backBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+	backBtn.SetPosition(100, -35);
+	backBtn.SetLabel(&backBtnTxt);
+	backBtn.SetImage(&backBtnImg);
+	backBtn.SetImageOver(&backBtnImgOver);
+	backBtn.SetSoundOver(&btnSoundOver);
+	backBtn.SetTrigger(&trigA);
+	backBtn.SetEffectGrow();
+	
+	
+	GuiText saveBtnTxt("Save", 22, (GXColor){0, 0, 0, 255});
+	GuiImage saveBtnImg(&btnOutline);
+	GuiImage saveBtnImgOver(&btnOutlineOver);
+	GuiButton saveBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+	saveBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+	saveBtn.SetPosition(300, -35);
+	saveBtn.SetLabel(&saveBtnTxt);
+	saveBtn.SetImage(&saveBtnImg);
+	saveBtn.SetImageOver(&saveBtnImgOver);
+	saveBtn.SetSoundOver(&btnSoundOver);
+	saveBtn.SetTrigger(&trigA);
+	saveBtn.SetEffectGrow();
+
+	GuiOptionBrowser optionBrowser(552, 248, &options);
+	optionBrowser.SetPosition(0, 108);
+	optionBrowser.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+	optionBrowser.SetCol2Position(185);
+
+	HaltGui();
+	GuiWindow w(screenwidth, screenheight);
+	w.Append(&backBtn);
+	w.Append(&saveBtn);
+	mainWindow->Append(&optionBrowser);
+	mainWindow->Append(&w);
+	mainWindow->Append(&titleTxt);
+	ResumeGui();
+
+	while(menu == MENU_NONE)
+	{
+		VIDEO_WaitVSync ();
+
+		ret = optionBrowser.GetClickedOption();
+		
+		snprintf (options.value[0], 50, "%s", psettings->server);
+		snprintf (options.value[1], 50, "%d", psettings->port);
+		snprintf (options.value[2], 50, "%s", psettings->user);
+		snprintf (options.value[3], 50, "%s", psettings->password);
+
+		switch (ret)
+		{
+			case 0:
+				OnScreenKeyboard(psettings->server,50);
+				break;
+
+			case 1:
+				OnScreenKeyboard(tmp,8);
+				psettings->port = atoi(tmp);
+				break;
+
+			case 2:
+				OnScreenKeyboard(psettings->user,50);
+				break;
+
+			case 3:
+				OnScreenKeyboard(psettings->password,50);
+				break;
+		}
+
+		if(backBtn.GetState() == STATE_CLICKED)
+		{
+			menu = MENU_EMAIL_SETTINGS;
+		}
+		if(saveBtn.GetState() == STATE_CLICKED){
+			eml->setsettings(POP,psettings);
+			menu = MENU_EMAIL_SETTINGS;
+		}
+	}
+	HaltGui();
+	mainWindow->Remove(&optionBrowser);
+	mainWindow->Remove(&w);
+	mainWindow->Remove(&titleTxt);
+	return menu;
+}
+
+
+static int smtpemailsettingsmenu(){
+	int menu = MENU_NONE;
+	
+	int ret;
+	int i = 0;
+	char *tmp;
+	tmp = new char [8];
+	strcpy(tmp,"25");
+	OptionList options;
+	sprintf(options.name[i++], "Server");
+	sprintf(options.name[i++], "Port");
+	sprintf(options.name[i++], "Username");
+	sprintf(options.name[i++], "Password");	
+	options.length = i;
+
+	GuiText titleTxt("Email - SMTP Settings", 28, (GXColor){255, 255, 255, 255});
+	titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
+	titleTxt.SetPosition(50,50);
+
+	GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
+	GuiImageData btnOutline(button_png);
+	GuiImageData btnOutlineOver(button_over_png);
+
+	GuiTrigger trigA;
+	trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A, PAD_BUTTON_A);
+
+	GuiText backBtnTxt("Go Back", 22, (GXColor){0, 0, 0, 255});
+	GuiImage backBtnImg(&btnOutline);
+	GuiImage backBtnImgOver(&btnOutlineOver);
+	GuiButton backBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+	backBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+	backBtn.SetPosition(100, -35);
+	backBtn.SetLabel(&backBtnTxt);
+	backBtn.SetImage(&backBtnImg);
+	backBtn.SetImageOver(&backBtnImgOver);
+	backBtn.SetSoundOver(&btnSoundOver);
+	backBtn.SetTrigger(&trigA);
+	backBtn.SetEffectGrow();
+	
+	
+	GuiText saveBtnTxt("Save", 22, (GXColor){0, 0, 0, 255});
+	GuiImage saveBtnImg(&btnOutline);
+	GuiImage saveBtnImgOver(&btnOutlineOver);
+	GuiButton saveBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+	saveBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+	saveBtn.SetPosition(300, -35);
+	saveBtn.SetLabel(&saveBtnTxt);
+	saveBtn.SetImage(&saveBtnImg);
+	saveBtn.SetImageOver(&saveBtnImgOver);
+	saveBtn.SetSoundOver(&btnSoundOver);
+	saveBtn.SetTrigger(&trigA);
+	saveBtn.SetEffectGrow();
+
+	GuiOptionBrowser optionBrowser(552, 248, &options);
+	optionBrowser.SetPosition(0, 108);
+	optionBrowser.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+	optionBrowser.SetCol2Position(185);
+
+	HaltGui();
+	GuiWindow w(screenwidth, screenheight);
+	w.Append(&backBtn);
+	w.Append(&saveBtn);
+	mainWindow->Append(&optionBrowser);
+	mainWindow->Append(&w);
+	mainWindow->Append(&titleTxt);
+	ResumeGui();
+
+	while(menu == MENU_NONE)
+	{
+		VIDEO_WaitVSync ();
+
+		ret = optionBrowser.GetClickedOption();
+		
+		snprintf (options.value[0], 50, "%s", ssettings->server);
+		snprintf (options.value[1], 50, "%d", ssettings->port);
+		snprintf (options.value[2], 50, "%s", ssettings->user);
+		snprintf (options.value[3], 50, "%s", ssettings->password);
+
+		switch (ret)
+		{
+			case 0:
+				OnScreenKeyboard(ssettings->server,50);
+				break;
+
+			case 1:
+				OnScreenKeyboard(tmp,8);
+				ssettings->port = atoi(tmp);
+				break;
+
+			case 2:
+				OnScreenKeyboard(ssettings->user,50);
+				break;
+
+			case 3:
+				OnScreenKeyboard(ssettings->password,50);
+				break;
+		}
+
+		if(backBtn.GetState() == STATE_CLICKED)
+		{
+			menu = MENU_EMAIL_SETTINGS;
+		}
+		if(saveBtn.GetState() == STATE_CLICKED){
+			eml->setsettings(SMTP,ssettings);
+			menu = MENU_EMAIL_SETTINGS;
+		}
+	}
+	HaltGui();
+	mainWindow->Remove(&optionBrowser);
+	mainWindow->Remove(&w);
+	mainWindow->Remove(&titleTxt);
 	return menu;
 }
 
@@ -1345,6 +1803,12 @@ void MainMenu(int menu)
 				break;
 			case MENU_CHECK_EMAIL:
 				currentMenu = checkemailmenu();
+				break;
+			case MENU_SMTP_SETTINGS:
+				currentMenu = smtpemailsettingsmenu();
+				break;
+			case MENU_POP_SETTINGS:
+				currentMenu = popemailsettingsmenu();
 				break;
 			default: // unrecognized menu
 				currentMenu = MainScreen();
