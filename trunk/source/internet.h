@@ -31,7 +31,7 @@
 #define POP_SUBJECT "Subject:"
 #define POP_BODY "\r\n\r\n"
 
-
+#define ESMTP_AUTH_LOGIN 2
 
 using namespace std;
 
@@ -176,6 +176,7 @@ public:
 	int renderpopresponse(const char *resp);
 	void parsemessage(messlist *ml,char *mess);
 	void getsize(char *response,int *sizes,int numdata);
+	void parseesmtp(int v,char *in);
 	
 
 private:
@@ -203,6 +204,10 @@ private:
 	char *b;
 	int bl;
 	char *p;
+	char *user64;
+	char *pass64;
+	char *esmp;
+	int esmtp;
 	
 	
 };

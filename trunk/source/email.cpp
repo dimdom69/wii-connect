@@ -9,11 +9,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "b64/encode.h"
 #include "internet.h"
 
 
 email::email(){
-	response = new char [200];
+	response = new char [512];
 	line = new char [100];
 	smtpsettings = new mailsettings;
 	popsettings = new mailsettings;
@@ -38,7 +39,13 @@ void email::clearsettings(settype st){
 	if(st == SMTP) memset(smtpsettings,0,sizeof(mailsettings));
 	if(st == POP) memset(popsettings,0,sizeof(mailsettings));
 }
-
+void email::parseesmtp(int v,char *in){
+	if((esmp = strstr(in,"AUTH"))){
+		if((esmp = strstr(in,"LOGIN"))){
+			v ^= ESMTP_AUTH_LOGIN;
+		}
+	}
+}
 void email::sendemail(struct emsg *mess){
 	if(smtpsettings->port == 0){
 		smtpport = 25;
@@ -49,36 +56,47 @@ void email::sendemail(struct emsg *mess){
 	connect(smtpsettings->server,smtpport,TCP);
 	host = strchr(mess->from,'@')+sizeof(char);
 	response = read(200);
-	sprintf(line,"HELO %s", localip);
+	sprintf(line,"EHLO %s\r\n",localip);
 	writetosocket(line);
-	writetosocket("\r\n");
-	response = read(200);
-	sprintf(line,"VRFY %s",mess->from);
+	response = read(512);
+	if(response[0] == '5'){
+		sprintf(line,"HELO %s\r\n", localip);
+		writetosocket(line);
+		response = read(200);
+	}
+	else{
+		parseesmtp(esmtp,response);
+		if(esmtp & ESMTP_AUTH_LOGIN){
+			user64 = new char [50];
+			pass64 = new char [50];
+			base64::encoder E;
+			E.encode(smtpsettings->user,strlen(smtpsettings->user), user64);
+			E.encode(smtpsettings->password,strlen(smtpsettings->password), pass64);
+			writetosocket("AUTH LOGIN\r\n");
+			response = read(200);
+			sprintf(line,"%s\r\n",user64);
+			writetosocket(line);
+			response = read(200);
+			sprintf(line,"%s\r\n",pass64);
+			writetosocket(line);
+			response = read(200);
+		}
+	}
+	sprintf(line,"MAIL FROM:<%s>\r\n",mess->from);
 	writetosocket(line);
-	writetosocket("\r\n");
 	response = read(200);
-	sprintf(line,"MAIL FROM:<%s>",mess->from);
+	sprintf(line,"RCPT TO:<%s>\r\n",mess->to);
 	writetosocket(line);
-	writetosocket("\r\n");
 	response = read(200);
-	sprintf(line,"RCPT TO:<%s>",mess->to);
+	writetosocket("DATA\r\n");
+	response = read(200);
+	sprintf(line,"Subject: %s\r\n",mess->subject);
 	writetosocket(line);
-	writetosocket("\r\n");
-	response = read(200);
-	writetosocket("DATA");
-	writetosocket("\r\n");
-	response = read(200);
-	sprintf(line,"Subject: %s",mess->subject);
+	sprintf(line,"\r\n%s\r\n",mess->message);
 	writetosocket(line);
-	writetosocket("\r\n");
-	sprintf(line,"%s",mess->message);
-	writetosocket(line);
-	writetosocket("\r\n");
-	writetosocket(".");
-	writetosocket("\r\n");
+	writetosocket(".\r\n");
 	response = read(200);
-	writetosocket("QUIT");
-	writetosocket("\r\n");
+	writetosocket("QUIT\r\n");
 	response = read(200);
 }
 
