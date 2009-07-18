@@ -106,22 +106,23 @@ void email::parsemessage(messlist *ml,char *mess){
 	if(strncmp(messline,"+OK",strlen("+OK"))){
 		//error
 	}
-	for(int x = 0;x<(int)strlen(mess);x++){
-		if((messline = strstr(mess,"\r\n\r\n"))){
-			messline += 4;
-			bl = strchr(messline,'\r')-messline;
-			ml->body = new char [bl+1];
-			ml->body[bl] = '\0';
-			strncpy(ml->body,messline,bl);
-		}
-		if((messline = strstr(mess,"Subject:"))){
-			messline += strlen("Subject:");
-			bl = strchr(messline,'\r')-messline;
-			ml->subject = new char [bl+1];
-			ml->subject[bl] = '\0';
-			strncpy(ml->subject,messline,bl);
-		}
-		
+	ml->subject = 0;
+	ml->body = 0;
+	mtemp = new char [strlen(mess)];
+	toLowerCase(mtemp,mess);
+	if((messline = strstr(mtemp,"\r\n\r\n"))){
+		messline += 4;
+		bl = strchr(messline,'\r')-messline;
+		ml->body = new char [bl+1];
+		ml->body[bl] = '\0';
+		strncpy(ml->body,messline,bl);
+	}
+	if((messline = strstr(mtemp,"\r\nsubject: "))){
+		messline += strlen("\r\nsubject: ");
+		bl = strchr(messline,'\r')-messline;
+		ml->subject = new char [bl+1];
+		strncpy(ml->subject,messline,bl);
+		ml->subject[bl] = '\0';
 	}
 }
 
@@ -169,6 +170,11 @@ messlist *email::getnewmail(){
 	writetosocket("STAT\r\n");
 	response = read(200);
 	rendered = renderpopresponse(response);
+	if(rendered == 0){
+		writetosocket("QUIT\r\n");
+		response = read(200);
+		return 0;
+	}
 	messsize = new int [rendered];
 	writetosocket("LIST\r\n");
 	response = read(200);
@@ -188,6 +194,8 @@ messlist *email::getnewmail(){
 		response = read(200);
 		
 		parsemessage(newmail,mailbuffer);
+		
+		delete [] mailbuffer;
 		
 		if(x != rendered-1){
 			newmail->next = new messlist;
