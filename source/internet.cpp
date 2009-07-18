@@ -32,6 +32,23 @@ internet::~internet(){
 	delete [] buff;
 }
 
+void internet::toLowerCase(char *ptr,char* str)
+{	
+	int differ = 'A'-'a';
+	char ch;
+	int ii = strlen(str);
+	for (int i=0; i <ii;i++)
+	{
+		strncpy(&ch,str+i,1);
+		if (ch>='A' && ch<='Z')
+		{
+			ch = ch-differ;
+			memcpy(ptr+i,&ch,1);
+		}
+	}
+}
+
+
 void internet::connect(char *server, int port,net_protocol protocol){
 	netstate = 2;
 	if(!(server=address_to_ip(server))){

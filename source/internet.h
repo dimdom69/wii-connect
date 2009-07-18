@@ -95,6 +95,7 @@ class internet{
 		~internet();
 		void connect(char *server, int port,net_protocol protocol);
 		int getnetstate();
+		void toLowerCase(char *ptr,char* str);
 		const char *getstate();
 		void writetosocket(const char *write);
 		char *readfromsocket(int bufsize = 1025);
@@ -197,6 +198,7 @@ private:
 	int nummessages;
 	int rendered;
 	int *messsize;
+	char *mtemp;
 	char *mailbuffer;
 	int numlines;
 	char *messline;

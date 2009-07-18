@@ -1039,12 +1039,12 @@ static int checkemailmenu(){
 	messlist *ml;
 	ml = mlroot;
 	if(ml != 0){
-		strncpy(options.value[i], ml->body, 50);
-		strncpy(options.name[i++], ml->subject,50);
+		sprintf(options.value[i], ml->body);
+		sprintf(options.name[i++], ml->subject);
 		while(ml->next){
 			ml = ml->next;
-			strncpy(options.value[i], ml->body, 50);
-			strncpy(options.name[i++], ml->subject,50);
+			sprintf(options.value[i], ml->body);
+			sprintf(options.name[i++], ml->subject);
 		}
 	}
 	options.length = i;

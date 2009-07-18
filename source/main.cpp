@@ -109,7 +109,6 @@ void initall(){
 	memset(ssettings->user,0,50);
 	memset(ssettings->password,0,50);
 
-//	strcpy(ssettings->server,"smtp-server.tampabay.rr.com");
 	ssettings->port = 25;
 	psettings->port = 110;
 	
@@ -151,8 +150,8 @@ int main(int argc, char **argv) {
 	initall();
 	
 	MainMenu(MENU_EMAIL);	
-
-	/*printf("\x1b[7CGetting test email...");
+/*
+	printf("\x1b[7CGetting test email...");
 
 	messlist *mlroot = eml->getnewmail();
 	
@@ -160,9 +159,11 @@ int main(int argc, char **argv) {
 	messlist *ml;
 	ml = mlroot;
 	if(ml != 0){
+		printf("Subject: %s\n",ml->subject);
 		printf("%s",ml->body);
 		while(ml->next){
 			ml = ml->next;
+			printf("Subject: %s\n",ml->subject);
 			printf("%s",ml->body);
 		}
 	}
@@ -174,6 +175,6 @@ int main(int argc, char **argv) {
 			printf("\n\nExiting...");
 			exit(0);
 		}
-	}
-	exit(0);*/
+	}*/
+	exit(0);
 }
