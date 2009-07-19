@@ -185,11 +185,14 @@ messlist *email::getnewmail(){
 	messsize = new int [rendered];
 	writetosocket("LIST\r\n");
 	response = read(200);
-	
+		
 	messsize = new int [rendered];
 	getsize(response, messsize, rendered);
-
-	response = read(200);
+	
+	if(!strstr(response,"\r\n.\r\n")){
+		response = read(200);
+	}
+	
 	newmailroot = new messlist;
 	newmail = newmailroot;
 	newmail->next = 0;
