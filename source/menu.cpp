@@ -1088,7 +1088,7 @@ static int checkemailmenu(){
 
 		if(backBtn.GetState() == STATE_CLICKED)
 		{
-			menu = MENU_EMAIL_SETTINGS;
+			menu = MENU_EMAIL;
 		}
 	}
 	HaltGui();

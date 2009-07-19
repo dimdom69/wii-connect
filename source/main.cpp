@@ -150,8 +150,8 @@ int main(int argc, char **argv) {
 	initall();
 	
 	MainMenu(MENU_EMAIL);	
-/*
-	printf("\x1b[7CGetting test email...");
+
+/*	printf("\x1b[7CGetting test email...");
 
 	messlist *mlroot = eml->getnewmail();
 	
