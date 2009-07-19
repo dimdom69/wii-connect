@@ -25,9 +25,9 @@ rss::~rss(){
 }
 
 rssentry *getlatest(){
-	
+	return 0;
 }
 
 rssentry **getentries(int num){
-	
+	return 0;
 }

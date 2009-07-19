@@ -210,6 +210,7 @@ private:
 	char *pass64;
 	char *esmp;
 	int esmtp;
+	char *etmp;
 	
 	
 };
