@@ -40,11 +40,14 @@ void email::clearsettings(settype st){
 	if(st == POP) memset(popsettings,0,sizeof(mailsettings));
 }
 void email::parseesmtp(int v,char *in){
-	if((esmp = strstr(in,"AUTH"))){
-		if((esmp = strstr(in,"LOGIN"))){
-			v ^= ESMTP_AUTH_LOGIN;
+	etmp = new char [strlen(in)+1];
+	toLowerCase(etmp,in);
+	if((esmp = strstr(etmp,"auth"))){
+		if((esmp = strstr(etmp,"auth"))){
+			v |= ESMTP_AUTH_LOGIN;
 		}
 	}
+	delete [] etmp;
 }
 void email::sendemail(struct emsg *mess){
 	if(smtpsettings->port == 0){
@@ -90,6 +93,10 @@ void email::sendemail(struct emsg *mess){
 	response = read(200);
 	writetosocket("DATA\r\n");
 	response = read(200);
+	sprintf(line,"From: <%s>\r\n",mess->from);
+	writetosocket(line);
+	sprintf(line,"To: <%s>\r\n",mess->to);
+	writetosocket(line);
 	sprintf(line,"Subject: %s\r\n",mess->subject);
 	writetosocket(line);
 	sprintf(line,"\r\n%s\r\n",mess->message);

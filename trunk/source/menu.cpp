@@ -826,7 +826,7 @@ static int friendmenu(){
 	return menu;
 }
 
-static void Notification(char *title,char *message){
+static void Notification(const char *title, const char *message){
 
 	GuiWindow notify(448,288);
 	notify.SetAlignment(ALIGN_CENTRE, ALIGN_MIDDLE);
@@ -1543,7 +1543,7 @@ static int MainScreen(){
 	bfriendlist.SetPosition(300,380);
 	bfriendlist.SetImage(&friendlist);
 	bfriendlist.SetSoundOver(btnSoundOver);
-	bfriendlist.SetTrigger(&trigA);
+//	bfriendlist.SetTrigger(&trigA);
 	bfriendlist.SetEffectGrow();
 	
 	GuiImage hbb(ihbb);
@@ -1598,9 +1598,9 @@ static int MainScreen(){
 		{
 			menu = MENU_EXIT;
 		}
-		if(bfriendlist.GetState() == STATE_CLICKED){
-			menu = friendmenu();
-		}
+//		if(bfriendlist.GetState() == STATE_CLICKED){
+//			menu = friendmenu();
+//		}
 		if(bexit.GetState() == STATE_CLICKED){
 			menu = MENU_EXIT;
 		}
