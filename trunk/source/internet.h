@@ -176,7 +176,7 @@ public:
 	messlist *getnewmail();
 	int renderpopresponse(const char *resp);
 	void parsemessage(messlist *ml,char *mess);
-	void getsize(char *response,int *sizes,int numdata);
+	void getsize(char *resp,int *sizes,int numdata);
 	void parseesmtp(int v,char *in);
 	
 
@@ -184,6 +184,8 @@ private:
 	char *response;
 	char *line;
 	char *host;
+	char *list;
+	int roffset;
 	mailsettings *smtpsettings;
 	mailsettings *popsettings;
 	int popport;
