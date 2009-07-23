@@ -104,6 +104,7 @@ void initall(){
 	memset(psettings->server,0,50);
 	memset(psettings->user,0,50);
 	memset(psettings->password,0,50);
+
 	
 	memset(ssettings->server,0,50);
 	memset(ssettings->user,0,50);
@@ -175,6 +176,6 @@ int main(int argc, char **argv) {
 			printf("\n\nExiting...");
 			exit(0);
 		}
-	}*/
-	exit(0);
+	}
+	exit(0);*/
 }

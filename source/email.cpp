@@ -133,9 +133,9 @@ void email::parsemessage(messlist *ml,char *mess){
 	}
 }
 
-void email::getsize(char *response, int *sizes,int numdata){
+void email::getsize(char *resp, int *sizes,int numdata){
 	b = new char [10];
-	p = strchr(response,'\n')+1;
+	p = strchr(resp,'\n')+1;
 	for(int x = 0;x<numdata;x++){
 		p = strchr(p,' ')+1;
 		for(bl = 0;p[bl] != '\r';bl++);
@@ -143,6 +143,7 @@ void email::getsize(char *response, int *sizes,int numdata){
 		sizes[x] = atoi(b);
 		p = strchr(p,'\n')+1;
 	}
+	delete [] b;
 }
 
 int email::renderpopresponse(const char *resp){
@@ -178,31 +179,37 @@ messlist *email::getnewmail(){
 	response = read(200);
 	rendered = renderpopresponse(response);
 	if(rendered == 0){
-		writetosocket("QUIT\r\n");
+		writetosocket("QUIT\r\n");	
 		response = read(200);
 		return 0;
 	}
 	messsize = new int [rendered];
+	list = new char [999];
 	writetosocket("LIST\r\n");
-	response = read(200);
-		
-	messsize = new int [rendered];
-	getsize(response, messsize, rendered);
-	
-	if(!strstr(response,"\r\n.\r\n")){
-		response = read(200);
+	strcpy(list,read(200));
+	while(!strstr(list,"\r\n.\r\n")){
+		strcat(list,read(200));
 	}
+	memset(strstr(list,"\r\n.\r\n"),0,5);
+	messsize = new int [rendered];
 	
-	newmailroot = new messlist;
-	newmail = newmailroot;
-	newmail->next = 0;
+	getsize(list, messsize, rendered);
+
+	delete [] list;
+	if(rendered){
+		newmailroot = new messlist;
+		newmail = newmailroot;
+		newmail->next = 0;
+	}
 	for(int x = 0;x<rendered;x++){
 		mailbuffer = new char [messsize[x]+30];
 		sprintf(line,"RETR %d\r\n",x+1);
-		writetosocket(line);
-		mailbuffer = read(messsize[x]+30);
-		response = read(200);
-		
+		writetosocket(line);	
+		strcpy(mailbuffer,read((messsize[x]+30)-strlen(mailbuffer)));
+		while(!strstr(mailbuffer,"\r\n.\r\n")){
+			strcat(mailbuffer,read((messsize[x]+30)-strlen(mailbuffer)));
+		}
+		memset(strstr(mailbuffer,"\r\n.\r\n"),0,5);
 		parsemessage(newmail,mailbuffer);
 		
 		delete [] mailbuffer;
