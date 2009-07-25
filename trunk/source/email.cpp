@@ -117,12 +117,15 @@ void email::parsemessage(messlist *ml,char *mess){
 	ml->body = 0;
 	mtemp = new char [strlen(mess)];
 	toLowerCase(mtemp,mess);
-	if((messline = strstr(mtemp,"\r\n\r\n"))){
-		messline += 4;
-		bl = strchr(messline,'\r')-messline;
+	if((messline = strstr(mess,"\r\n\r\n"))){
+		messline += strlen("\r\n\r\n");
+		bl = strstr(messline,"\r\n.\r\n")-messline;
+		if(bl == 0){
+			bl = (strlen(mess)+mess) - messline;
+		}
 		ml->body = new char [bl+1];
 		ml->body[bl] = '\0';
-		strncpy(ml->body,messline,bl);
+		strncpy(ml->body,messline,bl+1);
 	}
 	if((messline = strstr(mtemp,"\r\nsubject: "))){
 		messline += strlen("\r\nsubject: ");
@@ -209,7 +212,6 @@ messlist *email::getnewmail(){
 		while(!strstr(mailbuffer,"\r\n.\r\n")){
 			strcat(mailbuffer,read((messsize[x]+30)-strlen(mailbuffer)));
 		}
-		memset(strstr(mailbuffer,"\r\n.\r\n"),0,5);
 		parsemessage(newmail,mailbuffer);
 		
 		delete [] mailbuffer;

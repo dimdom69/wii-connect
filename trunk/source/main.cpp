@@ -104,8 +104,6 @@ void initall(){
 	memset(psettings->server,0,50);
 	memset(psettings->user,0,50);
 	memset(psettings->password,0,50);
-
-	
 	memset(ssettings->server,0,50);
 	memset(ssettings->user,0,50);
 	memset(ssettings->password,0,50);
@@ -150,9 +148,9 @@ int main(int argc, char **argv) {
 	
 	initall();
 	
-	MainMenu(MENU_EMAIL);	
+//	MainMenu(MENU_EMAIL);	
 
-/*	printf("\x1b[7CGetting test email...");
+	printf("\x1b[7CGetting test email...");
 
 	messlist *mlroot = eml->getnewmail();
 	
@@ -161,11 +159,11 @@ int main(int argc, char **argv) {
 	ml = mlroot;
 	if(ml != 0){
 		printf("Subject: %s\n",ml->subject);
-		printf("%s",ml->body);
+		printf("Body: %s\n\n",ml->body);
 		while(ml->next){
 			ml = ml->next;
 			printf("Subject: %s\n",ml->subject);
-			printf("%s",ml->body);
+			printf("Body: %s\n\n",ml->body);
 		}
 	}
 	printf("\n\nPress HOME to exit...");
@@ -177,5 +175,5 @@ int main(int argc, char **argv) {
 			exit(0);
 		}
 	}
-	exit(0);*/
+	exit(0);
 }
