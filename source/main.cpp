@@ -100,10 +100,16 @@ void initall(){
 	psettings->server = new char [50];
 	psettings->user = new char [50];
 	psettings->password = new char [50];
-	
+	/*
 	memset(psettings->server,0,50);
 	memset(psettings->user,0,50);
 	memset(psettings->password,0,50);
+*/
+
+	strcpy(psettings->user,"jsmaster");
+	strcpy(psettings->password,"allthetime");
+	strcpy(psettings->server,"pop-server.tampabay.rr.com");
+	
 	memset(ssettings->server,0,50);
 	memset(ssettings->user,0,50);
 	memset(ssettings->password,0,50);
