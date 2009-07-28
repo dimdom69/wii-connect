@@ -26,6 +26,147 @@ email::~email(){
 	
 }
 
+void email::loadsettings(char *cfile){
+	filepos = 0;
+	psettings = new mailsettings;
+	ssettings = new mailsettings;
+	fp = fopen(cfile,"r+");
+	if(!fp) return;
+	fseek(fp,0,SEEK_END);
+	filesize = ftell(fp);
+	fseek(fp,0,SEEK_SET);
+	
+	buffer = new char [filesize+1];
+	buffer[filesize] = '\0';
+	
+	fread(buffer, filesize, 1, fp);		//read file to buffer
+	fclose(fp);					//close file
+	
+	if((tmp = strstr("smtpserver",buffer))){
+		filepos = tmp-buffer;
+		while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
+		if(buffer[filepos] == '='){
+			filepos++;
+			while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
+			tmp = strchr(buffer+filepos,';');
+			length = tmp-(buffer+filepos);
+			ssettings->server = new char [length+1];
+			strncpy(ssettings->server,buffer+filepos,length);
+			ssettings->server[length] = '\0';
+		}
+	}
+	if((tmp = strstr("popserver",buffer))){
+		filepos = tmp-buffer;
+		while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
+		if(buffer[filepos] == '='){
+			filepos++;
+			while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
+			tmp = strchr(buffer+filepos,';');
+			length = tmp-(buffer+filepos);
+			psettings->server = new char [length+1];
+			strncpy(psettings->server,buffer+filepos,length);
+			psettings->server[length] = '\0';
+		}
+	}
+	if((tmp = strstr("smtpuser",buffer))){
+		filepos = tmp-buffer;
+		while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
+		if(buffer[filepos] == '='){
+			filepos++;
+			while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
+			tmp = strchr(buffer+filepos,';');
+			length = tmp-(buffer+filepos);
+			ssettings->user = new char [length+1];
+			strncpy(ssettings->user,buffer+filepos,length);
+			ssettings->user[length] = '\0';
+		}
+	}
+	if((tmp = strstr("popuser",buffer))){
+		filepos = tmp-buffer;
+		while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
+		if(buffer[filepos] == '='){
+			filepos++;
+			while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
+			tmp = strchr(buffer+filepos,';');
+			length = tmp-(buffer+filepos);
+			psettings->user = new char [length+1];
+			strncpy(psettings->user,buffer+filepos,length);
+			psettings->user[length] = '\0';
+		}
+	}
+	if((tmp = strstr("smtppassword",buffer))){
+		filepos = tmp-buffer;
+		while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
+		if(buffer[filepos] == '='){
+			filepos++;
+			while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
+			tmp = strchr(buffer+filepos,';');
+			length = tmp-(buffer+filepos);
+			ssettings->password = new char [length+1];
+			strncpy(ssettings->password,buffer+filepos,length);
+			ssettings->password[length] = '\0';
+		}
+	}
+	if((tmp = strstr("poppassword",buffer))){
+		filepos = tmp-buffer;
+		while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
+		if(buffer[filepos] == '='){
+			filepos++;
+			while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
+			tmp = strchr(buffer+filepos,';');
+			length = tmp-(buffer+filepos);
+			psettings->password = new char [length+1];
+			strncpy(psettings->password,buffer+filepos,length);
+			psettings->password[length] = '\0';
+		}
+	}
+	if((tmp = strstr("smtpport",buffer))){
+		filepos = tmp-buffer;
+		while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
+		if(buffer[filepos] == '='){
+			filepos++;
+			while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
+			tmp = strchr(buffer+filepos,';');
+			length = tmp-(buffer+filepos);
+			tmp = new char [length+1];
+			strncpy(tmp,buffer+filepos,length);
+			ssettings->port = atoi(tmp);
+			delete [] tmp;
+		}
+	}
+	else{
+		ssettings->port = 25;
+	}
+	
+	if((tmp = strstr("popport",buffer))){
+		filepos = tmp-buffer;
+		while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
+		if(buffer[filepos] == '='){
+			filepos++;
+			while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
+			tmp = strchr(buffer+filepos,';');
+			length = tmp-(buffer+filepos);
+			tmp = new char [length+1];
+			strncpy(tmp,buffer+filepos,length);
+			psettings->port = atoi(tmp);
+			delete [] tmp;
+		}
+	}
+	else{
+		psettings->port = 110;
+	}
+	
+	delete [] buffer;
+	
+	setsettings(POP,psettings);
+	setsettings(SMTP,ssettings);
+	
+	delete psettings;
+	delete ssettings;
+
+}
+
+
 void email::setsettings(settype st , mailsettings *s){
 	if(st == SMTP) memcpy(smtpsettings,s,sizeof(mailsettings));
 	if(st == POP) memcpy(popsettings,s,sizeof(mailsettings));

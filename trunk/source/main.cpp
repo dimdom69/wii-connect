@@ -91,6 +91,9 @@ void initall(){
 	eml = new email();
 	printf("success!\n");
 
+
+	eml->loadsettings("SD:/wiiconnect/email.conf");
+
 	ssettings = new mailsettings;
 	ssettings->server = new char [50];
 	ssettings->user = new char [50];
@@ -100,26 +103,18 @@ void initall(){
 	psettings->server = new char [50];
 	psettings->user = new char [50];
 	psettings->password = new char [50];
-	/*
+	
 	memset(psettings->server,0,50);
 	memset(psettings->user,0,50);
 	memset(psettings->password,0,50);
-*/
-
-	strcpy(psettings->user,"jsmaster");
-	strcpy(psettings->password,"allthetime");
-	strcpy(psettings->server,"pop-server.tampabay.rr.com");
 	
 	memset(ssettings->server,0,50);
 	memset(ssettings->user,0,50);
 	memset(ssettings->password,0,50);
-
-	ssettings->port = 25;
-	psettings->port = 110;
 	
 
-	eml->setsettings(SMTP,ssettings);
-	eml->setsettings(POP,psettings);
+	eml->getsettings(SMTP,ssettings);
+	eml->getsettings(POP,psettings);
 
 	ms = new emsg;
 	ms->to = new char [50];

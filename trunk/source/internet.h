@@ -172,6 +172,7 @@ public:
 	messlist *getallmail(); //must have set settings first; gets new mail + saved mail
 	void setsettings(settype st,mailsettings *s);
 	void getsettings(settype st,mailsettings *s);
+	void loadsettings(char *cfile);
 	void clearsettings(settype st);
 	messlist *getnewmail();
 	int renderpopresponse(const char *resp);
@@ -181,6 +182,14 @@ public:
 	
 
 private:
+	FILE *fp;
+	int filesize;
+	char *buffer;
+	int filepos;
+	char *tmp;
+	int length;
+	mailsettings *psettings;			//temp
+	mailsettings *ssettings;			//temp
 	char *response;
 	char *line;
 	char *host;

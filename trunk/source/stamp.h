@@ -71,8 +71,9 @@ class stamp
 		stamp(char *f);
 		virtual ~stamp();
 		void loadstamps();
-		void loadstamp(char *snum);
+		void loadstamp(int n);
 		void deletestamp();
+		bool checkstamp(int n);
 		char *tonum(int n);
 		void loadheader();
 		void loadfooter();
