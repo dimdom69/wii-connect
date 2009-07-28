@@ -66,8 +66,48 @@ void stamp::loadheader()
 		tmp = strchr(file+pos,'-');
 		length = tmp-(file+pos);
 		ss->header->title = new char [length+1];
-		strncpy(ss->header->title,tmp,length);
+		strncpy(ss->header->title,file+pos,length);
 		ss->header->title[length] = '\0';
+	}	
+	if((tmp=strstr(file,"GameID"))){
+		pos = tmp-file;
+		pos += strlen("GameID");
+		tmp = strchr(file+pos, '=');
+		pos = tmp-file;
+		pos++;
+		while((int)file[pos] < 33 && file[pos]) pos++;
+		tmp = strchr(file+pos,'-');
+		length = tmp-(file+pos);
+		ss->header->gameid = new char [length+1];
+		strncpy(ss->header->gameid,file+pos,length);
+		ss->header->gameid[length] = '\0';
+	}	
+	if((tmp=strstr(file,"Creator"))){
+		pos = tmp-file;
+		pos += strlen("Creator");
+		tmp = strchr(file+pos, '=');
+		pos = tmp-file;
+		pos++;
+		while((int)file[pos] < 33 && file[pos]) pos++;
+		tmp = strchr(file+pos,'-');
+		length = tmp-(file+pos);
+		ss->header->creator = new char [length+1];
+		strncpy(ss->header->creator,file+pos,length);
+		ss->header->creator[length] = '\0';
+	}
+	if((tmp=strstr(file,"Num"))){
+		pos = tmp-file;
+		pos += strlen("Num");
+		tmp = strchr(file+pos, '=');
+		pos = tmp-file;
+		pos++;
+		while((int)file[pos] < 33 && file[pos]) pos++;
+		tmp = strchr(file+pos,'-');
+		length = tmp-(file+pos);
+		tmp = new char [length+1];
+		strncpy(tmp,file+pos,length);
+		ss->header->num = atoi(tmp);
+		delete [] tmp;
 	}	
 }
 
@@ -80,15 +120,15 @@ void stamp::loadstamps()
 {
 	for(int x = 0;x<ss->header->num;x++)
 	{
-		loadstamp(tonum(x+1));
+		loadstamp(x);
 	}
 }
 
-void stamp::loadstamp(char *snum)
+void stamp::loadstamp(int n)
 {
 	current = new stampa;
-	current->num = atoi(snum);
-	tmp = strstr(file, snum);
+	current->num = n;
+	tmp = strstr(file, tonum(n));
 	if(!tmp) return;
 	pos = tmp-file;
 	pos += 3;
@@ -141,6 +181,18 @@ void stamp::loadstamp(char *snum)
 	
 	ss->stamps.push_back(current);
 }
+
+
+
+
+bool stamp::checkstamp(int n){
+	
+}
+
+
+
+
+
 
 void stamp::deletestamp()
 {
