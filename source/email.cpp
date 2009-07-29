@@ -42,8 +42,9 @@ void email::loadsettings(char *cfile){
 	fread(buffer, filesize, 1, fp);		//read file to buffer
 	fclose(fp);					//close file
 	
-	if((tmp = strstr("smtpserver",buffer))){
-		filepos = tmp-buffer;
+	
+	if((tmp = strstr(buffer,"smtpserver"))){
+		filepos = (tmp-buffer)+strlen("smtpserver");
 		while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
 		if(buffer[filepos] == '='){
 			filepos++;
@@ -55,8 +56,8 @@ void email::loadsettings(char *cfile){
 			ssettings->server[length] = '\0';
 		}
 	}
-	if((tmp = strstr("popserver",buffer))){
-		filepos = tmp-buffer;
+	if((tmp = strstr(buffer,"popserver"))){
+		filepos = (tmp-buffer)+strlen("popserver");
 		while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
 		if(buffer[filepos] == '='){
 			filepos++;
@@ -68,8 +69,8 @@ void email::loadsettings(char *cfile){
 			psettings->server[length] = '\0';
 		}
 	}
-	if((tmp = strstr("smtpuser",buffer))){
-		filepos = tmp-buffer;
+	if((tmp = strstr(buffer,"smtpuser"))){
+		filepos = (tmp-buffer)+strlen("smtpuser");
 		while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
 		if(buffer[filepos] == '='){
 			filepos++;
@@ -81,8 +82,8 @@ void email::loadsettings(char *cfile){
 			ssettings->user[length] = '\0';
 		}
 	}
-	if((tmp = strstr("popuser",buffer))){
-		filepos = tmp-buffer;
+	if((tmp = strstr(buffer,"popuser"))){
+		filepos = (tmp-buffer)+strlen("popuser");
 		while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
 		if(buffer[filepos] == '='){
 			filepos++;
@@ -94,8 +95,8 @@ void email::loadsettings(char *cfile){
 			psettings->user[length] = '\0';
 		}
 	}
-	if((tmp = strstr("smtppassword",buffer))){
-		filepos = tmp-buffer;
+	if((tmp = strstr(buffer,"smtppassword"))){
+		filepos = (tmp-buffer)+strlen("smtppassword");
 		while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
 		if(buffer[filepos] == '='){
 			filepos++;
@@ -107,8 +108,8 @@ void email::loadsettings(char *cfile){
 			ssettings->password[length] = '\0';
 		}
 	}
-	if((tmp = strstr("poppassword",buffer))){
-		filepos = tmp-buffer;
+	if((tmp = strstr(buffer,"poppassword"))){
+		filepos = (tmp-buffer)+strlen("poppassword");
 		while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
 		if(buffer[filepos] == '='){
 			filepos++;
@@ -120,8 +121,8 @@ void email::loadsettings(char *cfile){
 			psettings->password[length] = '\0';
 		}
 	}
-	if((tmp = strstr("smtpport",buffer))){
-		filepos = tmp-buffer;
+	if((tmp = strstr(buffer,"smtpport"))){
+		filepos = (tmp-buffer)+strlen("smtpport");
 		while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
 		if(buffer[filepos] == '='){
 			filepos++;
@@ -138,8 +139,8 @@ void email::loadsettings(char *cfile){
 		ssettings->port = 25;
 	}
 	
-	if((tmp = strstr("popport",buffer))){
-		filepos = tmp-buffer;
+	if((tmp = strstr(buffer,"popport"))){
+		filepos = (tmp-buffer)+strlen("popport");
 		while((int)buffer[filepos] < 33 && buffer[filepos]) filepos++;
 		if(buffer[filepos] == '='){
 			filepos++;
