@@ -22,6 +22,9 @@
 
 #include "stamp.h"
 #include <string.h>
+#include <string>
+#include <stdio.h>
+#include <stdlib.h>
 
 
 

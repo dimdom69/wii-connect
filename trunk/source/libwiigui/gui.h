@@ -41,19 +41,21 @@
 #include <math.h>
 #include <asndlib.h>
 #include <wiiuse/wpad.h>
-#include "pngu/pngu.h"
+#include "pngu.h"
 #include "FreeTypeGX.h"
 #include "video.h"
 #include "filelist.h"
 #include "input.h"
 #include "oggplayer.h"
 
-extern FreeTypeGX *fontSystem;
+extern FreeTypeGX *fontSystem[];
 
 #define SCROLL_INITIAL_DELAY 	20
-#define SCROLL_LOOP_DELAY 		3
-#define PAGESIZE	 			8
+#define SCROLL_LOOP_DELAY		3
+#define FILE_PAGESIZE 			8
+#define PAGESIZE 				8
 #define MAX_OPTIONS 			30
+#define MAX_KEYBOARD_DISPLAY	32
 
 typedef void (*UpdateCallback)(void * e);
 
@@ -95,6 +97,12 @@ enum
 	TRIGGER_HELD,
 	TRIGGER_BUTTON_ONLY,
 	TRIGGER_BUTTON_ONLY_IN_FOCUS
+};
+
+enum
+{
+	SCROLL_NONE,
+	SCROLL_HORIZONTAL
 };
 
 typedef struct _paddata {
@@ -204,7 +212,8 @@ class GuiTrigger
 
 		u8 type; //!< trigger type (TRIGGER_SIMPLE,	TRIGGER_HELD, TRIGGER_BUTTON_ONLY, TRIGGER_BUTTON_ONLY_IN_FOCUS)
 		s32 chan; //!< Trigger controller channel (0-3, -1 for all)
-		WPADData wpad; //!< Wii controller trigger data
+		WPADData * wpad; //!< Wii controller trigger
+		WPADData wpaddata; //!< Wii controller trigger data
 		PADData pad; //!< GameCube controller trigger data
 };
 
@@ -563,6 +572,8 @@ class GuiImage : public GuiElement
 		//!Alters the RGB values by the specified amount
 		//!\param s Amount to increment/decrement the RGB values in the image
 		void ColorStripe(int s);
+		//!Directly modifies the image data to change the image to grayscale
+		void Grayscale();
 		//!Sets a stripe effect on the image, overlaying alpha blended rectangles
 		//!Does not alter the image data
 		//!\param s Alpha amount to draw over the image
@@ -606,9 +617,15 @@ class GuiText : public GuiElement
 		//!\param s Font size
 		void SetFontSize(int s);
 		//!Sets the maximum width of the drawn texture image
-		//!If the text exceeds this, it is wrapped to the next line
 		//!\param w Maximum width
-		void SetMaxWidth(int w);
+		void SetMaxWidth(int width);
+		//!Enables/disables text scrolling
+		//!\param s Scrolling on/off
+		void SetScroll(int s);
+		//!Enables/disables text wrapping
+		//!\param w Wrapping on/off
+		//!\param width Maximum width (0 to disable)
+		void SetWrap(bool w, int width = 0);
 		//!Sets the font color
 		//!\param c Font color
 		void SetColor(GXColor c);
@@ -622,9 +639,16 @@ class GuiText : public GuiElement
 		//!Constantly called to draw the text
 		void Draw();
 	protected:
+		char * origText; //!< Original text data
 		wchar_t* text; //!< Unicode text value
 		int size; //!< Font size
 		int maxWidth; //!< Maximum width of the generated text object (for text wrapping)
+		bool wrap; //!< Wrapping toggle
+		wchar_t* textDyn; //!< Wrapped text value
+		int textScroll; //!< Scrolling toggle
+		int textScrollPos; //!< Current starting index of text string for scrolling
+		int textScrollInitialDelay; //!< Delay to wait before starting to scroll
+		int textScrollDelay; //!< Scrolling speed
 		u16 style; //!< FreeTypeGX style attributes
 		GXColor color; //!< Font color
 };
@@ -763,8 +787,8 @@ class GuiKeyboard : public GuiWindow
 
 typedef struct _optionlist {
 	int length;
-	char name[MAX_OPTIONS][150];
-	char value[MAX_OPTIONS][150];
+	char name[MAX_OPTIONS][50];
+	char value[MAX_OPTIONS][50];
 } OptionList;
 
 //!Display a list of menu options
@@ -779,11 +803,13 @@ class GuiOptionBrowser : public GuiElement
 		void ResetState();
 		void SetFocus(int f);
 		void Draw();
+		void TriggerUpdate();
 		void Update(GuiTrigger * t);
 		GuiText * optionVal[PAGESIZE];
 	protected:
 		int selectedItem;
 		int listOffset;
+		bool listChanged;
 
 		OptionList * options;
 		int optionIndex[PAGESIZE];
@@ -825,14 +851,15 @@ class GuiFileBrowser : public GuiElement
 		void Draw();
 		void TriggerUpdate();
 		void Update(GuiTrigger * t);
-		GuiButton * fileList[PAGESIZE];
+		GuiButton * fileList[FILE_PAGESIZE];
 	protected:
 		int selectedItem;
+		int numEntries;
 		bool listChanged;
 
-		GuiText * fileListText[PAGESIZE];
-		GuiImage * fileListBg[PAGESIZE];
-		GuiImage * fileListFolder[PAGESIZE];
+		GuiText * fileListText[FILE_PAGESIZE];
+		GuiImage * fileListBg[FILE_PAGESIZE];
+		GuiImage * fileListFolder[FILE_PAGESIZE];
 
 		GuiButton * arrowUpBtn;
 		GuiButton * arrowDownBtn;

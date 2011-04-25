@@ -3,10 +3,6 @@
 #---------------------------------------------------------------------------------
 .SUFFIXES:
 #---------------------------------------------------------------------------------
-export DEVKITPRO=/home/aaron/devkitpro
-export DEVKITPPC=/home/aaron/devkitpro/devkitPPC
-
-
 ifeq ($(strip $(DEVKITPPC)),)
 $(error "Please set DEVKITPPC in your environment. export DEVKITPPC=<path to>devkitPPC")
 endif
@@ -19,10 +15,10 @@ include $(DEVKITPPC)/wii_rules
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
-TARGET		:=	wiiconnect
+TARGET		:=	libwiigui-demo
 BUILD		:=	build
-SOURCES		:=	source source/libwiigui source/images source/fonts source/sounds wiiconnect-gui-images source/tinyxml source/unzip source/b64
-INCLUDES	:=	source
+SOURCES		:=	source source/libwiigui source/images source/fonts source/sounds
+INCLUDES	:=	source source/b64
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -35,12 +31,12 @@ LDFLAGS		=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS :=	-ldb -lpngu -lpng -lmetaphrasis -lfat -lz -lwiiuse -lbte -lasnd -logc -ltremor -lfreetype
+LIBS :=	-lpng -lz -lfat -lwiiuse -lbte -lasnd -logc -lvorbisidec -lfreetype
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
 # include and lib
 #---------------------------------------------------------------------------------
-LIBDIRS	:= $(CURDIR)
+LIBDIRS	:= $(PORTLIBS)
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
@@ -85,7 +81,7 @@ export OFILES	:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) \
 export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 					$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
 					-I$(CURDIR)/$(BUILD) \
-					-I$(LIBOGC_INC)
+					-I$(LIBOGC_INC) -I$(PORTLIBS)/include/freetype2
 
 #---------------------------------------------------------------------------------
 # build a list of library paths
