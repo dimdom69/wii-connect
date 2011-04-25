@@ -18,28 +18,28 @@ void getuserdata(struct emsg *ms);
 
 enum
 {
-	MENU_EXIT = -1,
-	MENU_FRIEND,
-	MENU_EMAIL,
-	MENU_SMTP_SETTINGS,
-	MENU_POP_SETTINGS,
-	MENU_SEND_EMAIL,
-	MENU_CHECK_EMAIL,
-	MENU_EMAIL_SETTINGS,
-	MENU_NONE,
-	MAIN_SCREEN
+        MENU_EXIT = -1,
+        MENU_FRIEND,
+        MENU_EMAIL,
+        MENU_SMTP_SETTINGS,
+        MENU_POP_SETTINGS,
+        MENU_SEND_EMAIL,
+        MENU_CHECK_EMAIL,
+        MENU_EMAIL_SETTINGS,
+        MENU_NONE,
+        MAIN_SCREEN
 };
 
 typedef struct frienddata_s{
-	char *ip;
-	char *name;
+        char *ip;
+        char *name;
 }frienddata;
 
 
 enum _netaction{
-	SEND_EMAIL,
-	RECV_EMAIL,
-	NONE
+        SEND_EMAIL,
+        RECV_EMAIL,
+        NONE
 };
 
 

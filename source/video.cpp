@@ -25,59 +25,7 @@ static unsigned char gp_fifo[DEFAULT_FIFO_SIZE] ATTRIBUTE_ALIGN (32);
 static Mtx GXmodelView2D;
 int screenheight;
 int screenwidth;
-
-/****************************************************************************
- * UpdatePadsCB
- *
- * called by postRetraceCallback in InitGCVideo - scans gcpad and wpad
- ***************************************************************************/
-static void
-UpdatePadsCB ()
-{
-	#ifdef HW_RVL
-	WPAD_ScanPads();
-	#endif
-	PAD_ScanPads();
-
-	for(int i=3; i >= 0; i--)
-	{
-		#ifdef HW_RVL
-		memcpy(&userInput[i].wpad, WPAD_Data(i), sizeof(WPADData));
-		#endif
-
-		userInput[i].chan = i;
-		userInput[i].pad.btns_d = PAD_ButtonsDown(i);
-		userInput[i].pad.btns_u = PAD_ButtonsUp(i);
-		userInput[i].pad.btns_h = PAD_ButtonsHeld(i);
-		userInput[i].pad.stickX = PAD_StickX(i);
-		userInput[i].pad.stickY = PAD_StickY(i);
-		userInput[i].pad.substickX = PAD_SubStickX(i);
-		userInput[i].pad.substickY = PAD_SubStickY(i);
-		userInput[i].pad.triggerL = PAD_TriggerL(i);
-		userInput[i].pad.triggerR = PAD_TriggerR(i);
-	}
-}
-
-/****************************************************************************
- * StartGX
- *
- * Initialises GX and sets it up for use
- ***************************************************************************/
-static void
-StartGX ()
-{
-	GXColor background = { 0, 0, 0, 0xff };
-
-	/*** Clear out FIFO area ***/
-	memset (&gp_fifo, 0, DEFAULT_FIFO_SIZE);
-
-	/*** Initialise GX ***/
-	GX_Init (&gp_fifo, DEFAULT_FIFO_SIZE);
-	GX_SetCopyClear (background, 0x00ffffff);
-
-	GX_SetDispCopyGamma (GX_GM_1_0);
-	GX_SetCullMode (GX_CULL_NONE);
-}
+u32 FrameTimer = 0;
 
 /****************************************************************************
  * ResetVideo_Menu
@@ -165,10 +113,7 @@ InitVideo ()
 
 	// widescreen fix
 	if(CONF_GetAspectRatio() == CONF_ASPECT_16_9)
-	{
-		vmode->viWidth = VI_MAX_WIDTH_PAL-12;
-		vmode->viXOrigin = ((VI_MAX_WIDTH_PAL - vmode->viWidth) / 2) + 2;
-	}
+		vmode->viWidth = VI_MAX_WIDTH_PAL;
 
 	VIDEO_Configure (vmode);
 
@@ -187,16 +132,20 @@ InitVideo ()
 	VIDEO_ClearFrameBuffer (vmode, xfb[1], COLOR_BLACK);
 	VIDEO_SetNextFramebuffer (xfb[0]);
 
-	// video callback
-	VIDEO_SetPostRetraceCallback ((VIRetraceCallback)UpdatePadsCB);
-
 	VIDEO_SetBlack (FALSE);
 	VIDEO_Flush ();
 	VIDEO_WaitVSync ();
 	if (vmode->viTVMode & VI_NON_INTERLACE)
 		VIDEO_WaitVSync ();
 
-	StartGX();
+	// Initialize GX
+	GXColor background = { 0, 0, 0, 0xff };
+	memset (&gp_fifo, 0, DEFAULT_FIFO_SIZE);
+	GX_Init (&gp_fifo, DEFAULT_FIFO_SIZE);
+	GX_SetCopyClear (background, 0x00ffffff);
+	GX_SetDispCopyGamma (GX_GM_1_0);
+	GX_SetCullMode (GX_CULL_NONE);
+	
 	ResetVideo_Menu();
 	// Finally, the video is up and ready for use :)
 }
@@ -222,15 +171,15 @@ void StopGX()
  ***************************************************************************/
 void Menu_Render()
 {
-	GX_DrawDone ();
-
 	whichfb ^= 1; // flip framebuffer
 	GX_SetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
 	GX_SetColorUpdate(GX_TRUE);
 	GX_CopyDisp(xfb[whichfb],GX_TRUE);
+	GX_DrawDone();
 	VIDEO_SetNextFramebuffer(xfb[whichfb]);
 	VIDEO_Flush();
 	VIDEO_WaitVSync();
+	FrameTimer++;
 }
 
 /****************************************************************************
@@ -258,7 +207,7 @@ void Menu_DrawImg(f32 xpos, f32 ypos, u16 width, u16 height, u8 data[],
 	height*=.5;
 	guMtxIdentity (m1);
 	guMtxScaleApply(m1,m1,scaleX,scaleY,1.0);
-	Vector axis = (Vector) {0 , 0, 1 };
+	guVector axis = (guVector) {0 , 0, 1 };
 	guMtxRotAxisDeg (m2, &axis, degrees);
 	guMtxConcat(m2,m1,m);
 
@@ -301,7 +250,7 @@ void Menu_DrawRectangle(f32 x, f32 y, f32 width, f32 height, GXColor color, u8 f
 	int i;
 	f32 x2 = x+width;
 	f32 y2 = y+height;
-	Vector v[] = {{x,y,0.0f}, {x2,y,0.0f}, {x2,y2,0.0f}, {x,y2,0.0f}, {x,y,0.0f}};
+	guVector v[] = {{x,y,0.0f}, {x2,y,0.0f}, {x2,y2,0.0f}, {x,y2,0.0f}, {x,y,0.0f}};
 
 	if(!filled)
 	{

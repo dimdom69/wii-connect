@@ -26,7 +26,6 @@
 #include "input.h"
 #include "filelist.h"
 #include "internet.h"
-#include "unzip/unzip.h"
 
 using namespace std;
 
@@ -153,6 +152,12 @@ u32	new_main_outline_png_size = 0;
 u8		*new_down_png;
 u32	new_down_png_size = 0;
 
+//u8		*down_png;
+//u32	down_png_size = 0;
+
+//u8		*network_png;
+//u32	network_png_size = 0;
+
 u8		*new_network_png;
 u32	new_network_png_size = 0;
 
@@ -162,11 +167,23 @@ u32	new_notify_png_size = 0;
 u8		*new_refresh_png;
 u32	new_refresh_png_size = 0;
 
+//u8		*refresh_png;
+//u32	refresh_png_size = 0;
+
 u8		*new_wiiconnect_png;
 u32	new_wiiconnect_png_size = 0;
 
+//u8		*wiiconnect_png;
+//u32	wiiconnect_png_size = 0;
+
 u8		*new_bg_png;
 u32	new_bg_png_size = 0;
+
+//u8		*bg_png;
+//u32	bg_png_size = 0;
+
+//u8		*chat_png;
+//u32	chat_png_size = 0;
 
 u8		*new_chat_png;
 u32	new_chat_png_size = 0;
@@ -174,17 +191,32 @@ u32	new_chat_png_size = 0;
 u8		*new_wiiconnectblack_png;
 u32	new_wiiconnectblack_png_size = 0;
 
+//u8		*wiiconnectblack_png;
+//u32	wiiconnectblack_png_size = 0;
+
 u8		*new_news_png;
 u32	new_news_png_size = 0;
+
+//u8		*news_png;
+//u32	news_png_size = 0;
 
 u8		*new_email_png;
 u32	new_email_png_size = 0;
 
+//u8		*email_png;
+//u32	email_png_size = 0;
+
 u8		*new_sidebar_png;
 u32	new_sidebar_png_size = 0;
 
+//u8		*sidebar_png;
+//u32	sidebar_png_size = 0;
+
 u8		*new_friendlist_png;
 u32	new_friendlist_png_size = 0;
+
+//u8		*friendlist_png;
+//u32	friendlist_png_size = 0;
 
 u8		*new_poke_png;
 u32	new_poke_png_size = 0;
@@ -192,8 +224,14 @@ u32	new_poke_png_size = 0;
 u8		*new_hbb_png;
 u32	new_hbb_png_size = 0;
 
+//u8		*hbb_png;
+//u32	hbb_png_size = 0;
+
 u8		*new_exit_png;
 u32	new_exit_png_size = 0;
+
+//u8		*exit_png;
+//u32	exit_png_size = 0;
 
 u8		*new_addfriend_png;
 u32	new_addfriend_png_size = 0;
@@ -265,7 +303,7 @@ HaltGui()
 }
 
 
-
+/*
 
 
 
@@ -475,7 +513,7 @@ int loadtheme(char *file){
 	return 0;
 }
 
-
+*/
 
 
 
@@ -605,9 +643,9 @@ UpdateGUI (void *arg)
 			#ifdef HW_RVL
 			for(int i=3; i >= 0; i--) // so that player 1's cursor appears on top!
 			{
-				if(userInput[i].wpad.ir.valid)
-					Menu_DrawImg(userInput[i].wpad.ir.x-48, userInput[i].wpad.ir.y-48,
-						96, 96, pointer[i]->GetImage(), userInput[i].wpad.ir.angle, 1, 1, 255);
+				if(userInput[i].wpad->ir.valid)
+					Menu_DrawImg(userInput[i].wpad->ir.x-48, userInput[i].wpad->ir.y-48,
+						96, 96, pointer[i]->GetImage(), userInput[i].wpad->ir.angle, 1, 1, 255);
 				DoRumble(i);
 			}
 			#endif

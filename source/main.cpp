@@ -2,6 +2,7 @@
 #include <debug.h>
 #include <fat.h>
 #include <math.h>
+#include <debug.h>
 #include <network.h>
 #include <ogc/lwp_watchdog.h>
 #include <ogcsys.h>
@@ -24,7 +25,6 @@
 #include "internet.h"
 
 
-FreeTypeGX *fontSystem;
 int ExitRequested = 0;
 extern struct emsg *ms;
 bool netHalt = false;
@@ -85,7 +85,7 @@ void initall(){
 	
 	printf("\x1b[2;7H");
 	
-	DEBUG_Init(GDBSTUB_DEVICE_USB, 1);
+//	DEBUG_Init(GDBSTUB_DEVICE_USB, 1);
 	
 	printf("Init Wifi...");
 	eml = new email();
@@ -128,9 +128,7 @@ void initall(){
 	memset(ms->message,0,200);
 
 
-	fontSystem = new FreeTypeGX();
-	fontSystem->loadFont(font_ttf, font_ttf_size, 0);
-	fontSystem->setCompatibilityMode(FTGX_COMPATIBILITY_DEFAULT_TEVOP_GX_PASSCLR | FTGX_COMPATIBILITY_DEFAULT_VTXDESC_GX_NONE);
+	InitFreeType((u8*)font_ttf, font_ttf_size); // Initialize font system
 
 	InitGUIThreads();
 //	LWP_CreateThread (&net_t, networkthread, NULL, NULL, 0, 40);

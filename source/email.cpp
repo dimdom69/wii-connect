@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "b64/encode.h"
+//#include "b64/encode.h"
 #include "internet.h"
 
 
@@ -209,7 +209,7 @@ void email::sendemail(struct emsg *mess){
 		writetosocket(line);
 		response = read(200);
 	}
-	else{
+/*	else{
 		parseesmtp(esmtp,response);
 		if(esmtp & ESMTP_AUTH_LOGIN){
 			user64 = new char [50];
@@ -226,7 +226,7 @@ void email::sendemail(struct emsg *mess){
 			writetosocket(line);
 			response = read(200);
 		}
-	}
+	}*/
 	sprintf(line,"MAIL FROM:<%s>\r\n",mess->from);
 	writetosocket(line);
 	response = read(200);
